@@ -464,3 +464,93 @@ log4j.appender.Console.layout=org.apache.log4j.PatternLayout
 log4j.appender.Console.layout.ConversionPattern=%d [%t] %-5p [%c] - %m%n
 log4j.logger.org.apache=INFO
 ```
+
+## Crm模块介绍
+1. 系统设置 `settings`
+   * 用户模块 `user`
+      * 登录操作 `login.do`
+      * 跳转到登录页面操作 `toLogin.do`
+   * 字典模块 `dictionary`
+2. 工作台 `workbench`
+   * 市场活动模块 `activity`
+   * 线索模块 `clue`
+   * 交易模块 `transaction`
+   * 统计图表模块 `chart`
+
+## 将html页面修改为jsp页面
+1. 替换html页面 `<head>` 及以上的标签内容
+   * basePath `http://localhost:8080/crm/`
+      * request.getScheme() `http`
+      * "://" 
+      * request.getServerName() `localhost` `127.0.0.1`
+      * ":" 
+      * request.getServerPort() `8080`
+      * request.getContextPath() `/crm`
+      * "/"
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%
+String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
+%>
+<!DOCTYPE html>
+<html>
+<head>
+	<base href="<%=basePath%>">
+```
+
+2. 将页面中的 `../` 替换为空字符串
+   * ctrl + r 进行全部替换
+   * 因为我们的 `<base>` 标签包含了我们的前缀路径
+
+3. 将 `.html` 后缀名,替换为 `.jsp`
+
+
+## 封装ajax工具类
+```javascript
+/*
+get方式以地址栏拼接键值对的方式传递数据
+ */
+function get(url,data,successCallBack,errorCallBack) {
+    $.ajax({
+        url:url,
+        data:data,
+        type:"get",
+        contentType: "application/x-www-form-urlencoded", //默认是以表单形式传递
+        dataType: "json",//服务器预计返回的参数类型
+        success:successCallBack,
+        error:errorCallBack
+    })
+}
+
+
+/*
+post方式传递json数据
+ */
+function post(url,data,successCallBack,errorCallBack) {
+    $.ajax({
+        url:url,
+        data:JSON.stringify(data),
+        type:"post",
+        contentType: "application/json;charset=UTF-8", //前端以json的方式来传递数据
+        dataType: "json",//服务器预计返回的参数类型
+        success:successCallBack,
+        error:errorCallBack
+    })
+}
+
+
+/*
+post方式提交表单参数
+ */
+function post4m(url,data,successCallBack,errorCallBack) {
+    $.ajax({
+        url:url,
+        data:data,
+        type:"post",
+        contentType: "application/x-www-form-urlencoded", //默认是以表单形式传递
+        dataType: "json",//服务器预计返回的参数类型
+        success:successCallBack,
+        error:errorCallBack
+    })
+}
+```

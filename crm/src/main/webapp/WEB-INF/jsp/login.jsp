@@ -1,10 +1,36 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%
+String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
+%>
 <!DOCTYPE html>
 <html>
 <head>
+	<base href="<%=basePath%>">
 <meta charset="UTF-8">
 <link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
 <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="js/ajax.js"></script>
+	<script type="text/javascript" src="js/user.js"></script>
+	<script>
+		$(function () {
+			/*
+			每个方法基本上都会发送请求,所以我们需要抽取一些公共的方法来封装请求参数
+			这样我们直接引入js文件,调用方法,即可发送请求,这样大大的提高了我们的开发效率
+			通常前端和后台的交互,都是通过json方式来进行交互的
+				[...] json数组
+				{...} json对象
+				地址栏后拼接键值对
+				表单传递参数
+			 */
+			//get("xxx",{abc:"bcd"},(data)=>{},(err)=>{})
+			//get("xxx",{abc:"bcd"},(data)=>{})
+			//post("xxx",{abc:"bcd",cde:"def"},(data)=>{})
+			//post("xxx",[{abc:"bcd"},{cde:"def"}],(data)=>{})
+			//post4m("xxx",{abc:"bcd",cde:"def"},(data)=>{})
+		})
+	</script>
 </head>
 <body>
 	<div style="position: absolute; top: 0px; left: 0px; width: 60%;">

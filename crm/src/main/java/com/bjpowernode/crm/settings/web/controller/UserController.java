@@ -1,6 +1,8 @@
 package com.bjpowernode.crm.settings.web.controller;
 
+import com.bjpowernode.crm.constants.UserConstants;
 import com.bjpowernode.crm.entity.R;
+import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.settings.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,24 +29,24 @@ public class UserController {
     /*
         跳转到登录页面
      */
-    @RequestMapping("/toLogin.do")
+    @RequestMapping(UserConstants.TO_LOGIN_URL)
     public String toLogin(){
         //视图解析器会根据返回的字符串进行拼接,找到我们指定的页面路径
         //前缀: /WEB-INF/jsp
         //返回值: /login
         //后缀: .jsp
-        return "/login";
+        return UserConstants.LOGIN_PAGE;
     }
 
 
     /*
     登录操作
      */
-    @RequestMapping("/login.do")
+    @RequestMapping(UserConstants.LOGIN_URL)
     @ResponseBody//当前返回值转换为json数据返回
     //通过get或post的表单当时来传递数据
-    public R login(@RequestParam("loginAct")String loginAct,
-                   @RequestParam("loginPwd")String loginPwd,
+    public R login(@RequestParam(UserConstants.LOGIN_ACT_PREFIX)String loginAct,
+                   @RequestParam(UserConstants.LOGIN_PWD_PREFIX)String loginPwd,
                    HttpServletRequest request){
     //public R login(User user){
     //通过post的json数据传递
@@ -60,15 +62,19 @@ public class UserController {
                 因为bcrypt加密出来的字符串是随机的,比如同样的密码获取出的加密字符串是不同的
                 更安全
          */
-        User user = userService.findUserByLoginAct(loginAct,loginPwd);
+        //获取ip地址
+        //细节: 浏览器访问的时候不要使用localhost进行访问,因为它不是一个ip地址,使用127.0.0.1这个本地ip来访问
+        String ip = request.getRemoteAddr();
+
+        User user = userService.findUserByLoginAct(loginAct,loginPwd,ip);
 
         //登录成功,我们将User对象存入到Session中
-        request.getSession().setAttribute("user",user);
+        request.getSession().setAttribute(UserConstants.USER_PREFIX,user);
 
         //登录成功,返回R对象
         return R.builder()
-                .code(20000)
-                .msg("请求成功")
+                .code(State.SUCCESS.getCode())
+                .msg(State.SUCCESS.getMsg())
                 .success(true)
                 .build();
     }

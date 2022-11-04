@@ -33,7 +33,11 @@ function login() {
                 // {code:20000,msg:xxx,success:true} 请求成功的返回信息
                 // {code:20001,msg:xxx,success:false} 请求失败的返回信息
                 //如果是查询 {code:20000,msg:xxx,success:true,data:xxx}
-                //if(data.success)
+                if(data.success)
+                    //登录成功,后续我们要跳转到工作台首页面
+                    $("#msg").html(data.msg);
+                else
+                    $("#msg").html(data.msg);
             }
         )
     })

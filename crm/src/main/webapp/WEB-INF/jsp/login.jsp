@@ -29,6 +29,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			//post("xxx",{abc:"bcd",cde:"def"},(data)=>{})
 			//post("xxx",[{abc:"bcd"},{cde:"def"}],(data)=>{})
 			//post4m("xxx",{abc:"bcd",cde:"def"},(data)=>{})
+
+			//1. 登录操作
+			login();
 		})
 	</script>
 </head>
@@ -48,19 +51,19 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<form action="workbench/index.html" class="form-horizontal" role="form">
 				<div class="form-group form-group-lg">
 					<div style="width: 350px;">
-						<input class="form-control" type="text" placeholder="用户名">
+						<input class="form-control" id="loginAct" type="text" placeholder="用户名">
 					</div>
 					<div style="width: 350px; position: relative;top: 20px;">
-						<input class="form-control" type="password" placeholder="密码">
+						<input class="form-control" id="loginPwd" type="password" placeholder="密码">
 					</div>
 					<div class="checkbox"  style="position: relative;top: 30px; left: 10px;">
 						<label>
 							<input type="checkbox"> 十天内免登录
 						</label>
 						&nbsp;&nbsp;
-						<span id="msg"></span>
+						<span id="msg" style="color: red"></span>
 					</div>
-					<button type="submit" class="btn btn-primary btn-lg btn-block"  style="width: 350px; position: relative;top: 45px;">登录</button>
+					<button id="loginBtn" type="button" class="btn btn-primary btn-lg btn-block"  style="width: 350px; position: relative;top: 45px;">登录</button>
 				</div>
 			</form>
 		</div>

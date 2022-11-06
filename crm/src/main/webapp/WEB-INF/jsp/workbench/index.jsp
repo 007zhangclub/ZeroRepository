@@ -36,8 +36,8 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			$(this).children("a").css("color","white");
 		});
 		
-		
-		window.open("main/index.html","workareaFrame");
+		//加载内容区域的页面
+		window.open("workbench/main/toIndex.do","workareaFrame");
 		
 	});
 	
@@ -143,10 +143,10 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<ul>
 				<li class="dropdown user-dropdown">
 					<a href="javascript:void(0)" style="text-decoration: none; color: white;" class="dropdown-toggle" data-toggle="dropdown">
-						<span class="glyphicon glyphicon-user"></span> zhangsan <span class="caret"></span>
+						<span class="glyphicon glyphicon-user"></span> ${user.name} <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu">
-						<li><a href="settings/index.html"><span class="glyphicon glyphicon-wrench"></span> 系统设置</a></li>
+						<li><a href="settings/toIndex.do"><span class="glyphicon glyphicon-wrench"></span> 系统设置</a></li>
 						<li><a href="javascript:void(0)" data-toggle="modal" data-target="#myInformation"><span class="glyphicon glyphicon-file"></span> 我的资料</a></li>
 						<li><a href="javascript:void(0)" data-toggle="modal" data-target="#editPwdModal"><span class="glyphicon glyphicon-edit"></span> 修改密码</a></li>
 						<li><a href="javascript:void(0);" data-toggle="modal" data-target="#exitModal"><span class="glyphicon glyphicon-off"></span> 退出</a></li>
@@ -163,7 +163,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		<div id="navigation" style="left: 0px; width: 18%; position: relative; height: 100%; overflow:auto;">
 		
 			<ul id="no1" class="nav nav-pills nav-stacked">
-				<li class="liClass"><a href="main/index.html" target="workareaFrame"><span class="glyphicon glyphicon-home"></span> 工作台</a></li>
+				<li class="liClass"><a href="main/index.jsp" target="workareaFrame"><span class="glyphicon glyphicon-home"></span> 工作台</a></li>
 				<li class="liClass"><a href="javascript:void(0);" target="workareaFrame"><span class="glyphicon glyphicon-tag"></span> 动态</a></li>
 				<li class="liClass"><a href="javascript:void(0);" target="workareaFrame"><span class="glyphicon glyphicon-time"></span> 审批</a></li>
 				<li class="liClass"><a href="javascript:void(0);" target="workareaFrame"><span class="glyphicon glyphicon-user"></span> 客户公海</a></li>

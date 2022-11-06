@@ -332,3 +332,104 @@ private void checkUser(User user, String ip) {
     throw new RuntimeException(State.USER_ACCOUNT_IP_NOT_ALLOW_ERROR.getMsg());
 }
 ```
+
+
+## 字典模块表结构
+* tbl_dic_type `字典类型表` `一方`
+    * code
+    * name
+    * description
+* tbl_dic_value `字典值表` `多方`
+    * id
+    * text
+    * value
+    * orderNo
+    * typeCode
+```html
+<select>性别
+    <option value="male(value)">男(text)</option>
+    <option>女</option>
+</select>
+```
+
+## Crm模块介绍
+* 系统设置模块 `settings`
+  * 用户模块 `user`
+  * 字典模块 `dictionary`
+    * 字典类型模块 `type`
+      * 首页面 `index.jsp`
+      * 修改页面
+      * 新增页面
+    * 字典值模块 `value`
+      * 首页面 `index.jsp`
+      * 修改页面
+      * 新增页面
+* 工作台模块 `workbench`
+
+## 字典模块介绍
+> 为了给页面的下拉框提供一个修改的入口,那么我们的字典模块就应运而生了
+
+## 加载字典类型列表数据
+* 后台代码
+```java
+/*
+跳转到字典类型模块首页面
+ */
+@RequestMapping("/type/toIndex.do")
+public String toTypeIndex(Model model){
+
+    //查询出字典类型列表数据
+    List<DictionaryType> dictionaryTypeList = dictionaryService.findDictionaryTypeList();
+
+    //校验
+    if(!CollectionUtils.isEmpty(dictionaryTypeList))
+        //存入到model中,携带到页面
+        model.addAttribute("dictionaryTypeList",dictionaryTypeList);
+
+    return "/settings/dictionary/type/index";
+}
+```
+
+* jsp页面
+```html
+<table class="table table-hover">
+    <thead>
+        <tr style="color: #B3B3B3;">
+            <td><input id="selectAllBtn" type="checkbox" /></td>
+            <td>序号</td>
+            <td>编码</td>
+            <td>名称</td>
+            <td>描述</td>
+        </tr>
+    </thead>
+    <tbody>
+        <c:forEach items="${dictionaryTypeList}" var="dt" varStatus="dts">
+            <tr class="${dts.index%2==0?'active':''}">
+                <td><input type="checkbox" name="flag"/></td>
+                <td>${dts.count}</td>
+                <td>${dt.code}</td>
+                <td>${dt.name}</td>
+                <td>${dt.description}</td>
+            </tr>
+        </c:forEach>
+    </tbody>
+</table>
+```
+
+## 字典类型首页面的全选和反选操作
+```javascript
+function selectAll() {
+    $("#selectAllBtn").click(function () {
+        //根据全选框的选中状态,加载所有的复选框的选中状态
+        $("input[name=flag]").prop("checked",this.checked)
+    })
+}
+
+
+function reverseAll() {
+    $("input[name=flag]").click(function () {
+        //所有的复选框都选中之后,默认选中全选框
+        $("#selectAllBtn").prop("checked",$("input[name=flag]").length == $("input[name=flag]:checked").length)
+    })
+}
+```

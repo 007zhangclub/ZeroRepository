@@ -161,3 +161,46 @@ function updateDictionaryType() {
         )
     })
 }
+
+
+function batchDelete() {
+    //给删除按钮绑定点击事件
+    $("#batchDeleteBtn").click(function () {
+        //获取页面中选中的复选框对象
+        let flags = $("input[name=flag]:checked");
+
+        //批量删除,可以删除多个数据
+        if(flags.length == 0){
+            //没有选中
+            alert("请选择需要删除的数据");
+            return;
+        }
+
+        //拼接参数,传递集合到后台
+        /*
+            方式1,以get的方式传递集合数据到后台
+                url?codes=aaa&codes=bbb...
+            方式2,以post的方式传递json数组到后台
+         */
+        let params = [];
+
+        //遍历标签对象,获取code编码
+        for(let i=0; i<flags.length; i++)
+            params.push(flags[i].value);
+
+        //由于是删除操作,要给出提示
+        if(confirm("确定要删除吗?"))
+            post(
+                "settings/dictionary/type/batchDelete.do",
+                params,
+                data=>{
+                    if(!data.success){
+                        alert("部分数据存在关联关系,无法删除 : "+data.data);
+                    }
+
+                    //删除成功,刷新列表即可
+                    to("settings/dictionary/type/toIndex.do");
+                }
+            )
+    })
+}

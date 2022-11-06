@@ -715,3 +715,120 @@ public R updateDictionaryType(@RequestBody DictionaryType dictionaryType){
         where code = #{code}
 </update>
 ```
+
+
+## 批量删除操作
+* 前端代码
+```javascript
+function batchDelete() {
+    //给删除按钮绑定点击事件
+    $("#batchDeleteBtn").click(function () {
+        //获取页面中选中的复选框对象
+        let flags = $("input[name=flag]:checked");
+
+        //批量删除,可以删除多个数据
+        if(flags.length == 0){
+            //没有选中
+            alert("请选择需要删除的数据");
+            return;
+        }
+
+        //拼接参数,传递集合到后台
+        /*
+            方式1,以get的方式传递集合数据到后台
+                url?codes=aaa&codes=bbb...
+            方式2,以post的方式传递json数组到后台
+         */
+        let params = [];
+
+        //遍历标签对象,获取code编码
+        for(let i=0; i<flags.length; i++)
+            params.push(flags[i].value);
+
+        //由于是删除操作,要给出提示
+        if(confirm("确定要删除吗?"))
+            post(
+                "settings/dictionary/type/batchDelete.do",
+                params,
+                data=>{
+                    if(!data.success){
+                        alert("部分数据存在关联关系,无法删除 : "+data.data);
+                    }
+
+                    //删除成功,刷新列表即可
+                    to("settings/dictionary/type/toIndex.do");
+                }
+            )
+    })
+}
+```
+
+* 后台代码 `controller`
+```java
+@RequestMapping("/type/batchDelete.do")
+@ResponseBody
+public R batchDeleteDictionaryType(@RequestBody List<String> codes) {
+    /*
+        批量删除操作,要考虑表与表之间的关系
+            tbl_dic_type 和 tbl_dic_value表之间的关系(一对多的关系)
+            现在我们要删除的是一方数据,如果当前删除的一方数据,有关联的多方数据,不能删除
+            如果想要删除这个一方数据,必须要先将所有的多方数据删除后,再删除一方数据
+            如果有了外键的约束,由mysql帮助我们自动维护,这样我们不用担心这个问题
+        但是现在公司中,由于使用外键,会让mysql分出一部分性能来维护外键关系
+        那么我们公司中,可以不使用外键进行维护,我们通过逻辑进行维护
+        在删除一方数据的时候,需要关联查询一下这条数据对应的多方数据
+        如果没有多方数据的关联,那么则可以直接删除
+     */
+    //返回值是无法删除的多方数据
+    List<String> relationCodeList = dictionaryService.deleteDictionaryList(codes);
+
+    //将无法删除的code编码返回,给前端用户进行展示,告知
+    return CollectionUtils.isEmpty(relationCodeList) ?
+            //全部数据已经被删除
+            ok() :
+            //可能全部失败,或部分失败
+            ok(State.DB_DELETE_ERROR, relationCodeList, false);
+}
+```
+
+* 后台代码
+```java
+public List<String> deleteDictionaryList(List<String> codes) {
+
+    //封装可以删除和无法删除的List集合
+    List<String> deleteList = new ArrayList<>();
+    List<String> relationList = new ArrayList<>();
+
+    //根据codes查询出关联的字典值列表数据
+    codes.forEach(
+            code -> {
+                List<DictionaryValue> dictionaryValueList = dictionaryValueDao.findList(code);
+
+                if(CollectionUtils.isEmpty(dictionaryValueList))
+                    //证明当前的code,没有关联关系,可以删除
+                    deleteList.add(code);
+                else
+                    relationList.add(code);
+            }
+    );
+
+    //判断
+    if(!CollectionUtils.isEmpty(deleteList))
+        //批量删除操作
+        dictionaryTypeDao.deleteList(deleteList);
+
+    return CollectionUtils.isEmpty(relationList) ? null : relationList;
+}
+```
+
+* Sql
+```xml
+<!--delete from tbl_dic_type where code in (?,?,?...)-->
+<delete id="deleteList">
+    delete from tbl_dic_type
+    where code in
+    <foreach collection="list" item="code" separator="," open="(" close=")">
+        #{code}
+    </foreach>
+</delete>
+```

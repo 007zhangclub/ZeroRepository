@@ -3,14 +3,22 @@
 <mapper namespace="com.bjpowernode.crm.settings.dao.DictionaryTypeDao">
     <update id="update">
         update tbl_dic_type
-            <set>
-                <if test="name != null and name != ''">
-                    name = #{name} ,
-                </if>
-                <if test="description != null and description != ''">
-                    description = #{description} ,
-                </if>
-            </set>
-            where code = #{code}
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name} ,
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description} ,
+            </if>
+        </set>
+        where code = #{code}
     </update>
+    <!--delete from tbl_dic_type where code in (?,?,?...)-->
+    <delete id="deleteList">
+        delete from tbl_dic_type
+        where code in
+        <foreach collection="list" item="code" separator="," open="(" close=")">
+            #{code}
+        </foreach>
+    </delete>
 </mapper>

@@ -109,16 +109,16 @@ public class DictionaryController extends Settings {
         return flag
                 ?
                 R.builder()
-                .code(State.SUCCESS.getCode())
-                .msg(State.SUCCESS.getMsg())
-                .success(true)
-                .build()
+                        .code(State.SUCCESS.getCode())
+                        .msg(State.SUCCESS.getMsg())
+                        .success(true)
+                        .build()
                 :
                 R.builder()
-                .code(State.DB_SAVE_ERROR.getCode())
-                .msg(State.DB_SAVE_ERROR.getMsg())
-                .success(false)
-                .build();
+                        .code(State.DB_SAVE_ERROR.getCode())
+                        .msg(State.DB_SAVE_ERROR.getMsg())
+                        .success(false)
+                        .build();
     }
 
 
@@ -126,13 +126,13 @@ public class DictionaryController extends Settings {
         根据code查询字典类型数据,并跳转到修改页面操作
      */
     @RequestMapping("/type/toEdit.do")
-    public String toTypeEdit(@RequestParam("code")String code,Model model){
+    public String toTypeEdit(@RequestParam("code") String code, Model model) {
         //通过code查询字典类型对象
         DictionaryType dictionaryType = dictionaryService.findDictionaryType(code);
 
         //如果字典类型对象不为空,存入到Model对象中,携带到页面进行加载
-        if(ObjectUtils.isNotEmpty(dictionaryType))
-            model.addAttribute("dictionaryType",dictionaryType);
+        if (ObjectUtils.isNotEmpty(dictionaryType))
+            model.addAttribute("dictionaryType", dictionaryType);
 
         //跳转到字典类型的修改页面
         return "/settings/dictionary/type/edit";
@@ -146,7 +146,7 @@ public class DictionaryController extends Settings {
      */
     @RequestMapping("/type/updateDictionaryType.do")
     @ResponseBody
-    public R updateDictionaryType(@RequestBody DictionaryType dictionaryType){
+    public R updateDictionaryType(@RequestBody DictionaryType dictionaryType) {
         //校验参数的合法性
         checked(
                 //只校验必传的参数,而不是校验所有参数信息
@@ -157,5 +157,31 @@ public class DictionaryController extends Settings {
         boolean flag = dictionaryService.updateDictionaryType(dictionaryType);
 
         return flag ? ok() : err(State.DB_UPDATE_ERROR);
+    }
+
+
+    @RequestMapping("/type/batchDelete.do")
+    @ResponseBody
+    public R batchDeleteDictionaryType(@RequestBody List<String> codes) {
+        /*
+            批量删除操作,要考虑表与表之间的关系
+                tbl_dic_type 和 tbl_dic_value表之间的关系(一对多的关系)
+                现在我们要删除的是一方数据,如果当前删除的一方数据,有关联的多方数据,不能删除
+                如果想要删除这个一方数据,必须要先将所有的多方数据删除后,再删除一方数据
+                如果有了外键的约束,由mysql帮助我们自动维护,这样我们不用担心这个问题
+            但是现在公司中,由于使用外键,会让mysql分出一部分性能来维护外键关系
+            那么我们公司中,可以不使用外键进行维护,我们通过逻辑进行维护
+            在删除一方数据的时候,需要关联查询一下这条数据对应的多方数据
+            如果没有多方数据的关联,那么则可以直接删除
+         */
+        //返回值是无法删除的多方数据
+        List<String> relationCodeList = dictionaryService.deleteDictionaryList(codes);
+
+        //将无法删除的code编码返回,给前端用户进行展示,告知
+        return CollectionUtils.isEmpty(relationCodeList) ?
+                //全部数据已经被删除
+                ok() :
+                //可能全部失败,或部分失败
+                ok(State.DB_DELETE_ERROR, relationCodeList, false);
     }
 }

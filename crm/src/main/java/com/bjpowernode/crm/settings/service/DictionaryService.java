@@ -12,4 +12,6 @@ public interface DictionaryService {
     boolean saveDictionaryType(DictionaryType dictionaryType);
 
     boolean updateDictionaryType(DictionaryType dictionaryType);
+
+    List<String> deleteDictionaryList(List<String> codes);
 }

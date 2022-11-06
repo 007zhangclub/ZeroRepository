@@ -19,4 +19,6 @@ public interface DictionaryTypeDao {
     int insert(DictionaryType dictionaryType);
 
     int update(DictionaryType dictionaryType);
+
+    int deleteList(List<String> deleteList);
 }

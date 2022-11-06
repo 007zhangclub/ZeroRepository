@@ -25,6 +25,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 			//3. 跳转到修改页面
 			toEdit();
+
+			//4. 批量删除操作
+			batchDelete();
 		})
 	</script>
 
@@ -42,7 +45,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		<div class="btn-group" style="position: relative; top: 18%;">
 		  <button type="button" class="btn btn-primary" onclick="window.location.href='settings/dictionary/type/toSave.do'"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 		  <button type="button" class="btn btn-default" id="toEditBtn"><span class="glyphicon glyphicon-edit"></span> 编辑</button>
-		  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+		  <button id="batchDeleteBtn" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 		</div>
 	</div>
 	<div style="position: relative; left: 30px; top: 20px;">

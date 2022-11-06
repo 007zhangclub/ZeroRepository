@@ -10,4 +10,6 @@ public interface DictionaryService {
     DictionaryType findDictionaryType(String code);
 
     boolean saveDictionaryType(DictionaryType dictionaryType);
+
+    boolean updateDictionaryType(DictionaryType dictionaryType);
 }

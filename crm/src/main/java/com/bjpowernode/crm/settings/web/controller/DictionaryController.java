@@ -2,6 +2,7 @@ package com.bjpowernode.crm.settings.web.controller;
 
 import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
+import com.bjpowernode.crm.settings.base.Settings;
 import com.bjpowernode.crm.settings.domain.DictionaryType;
 import com.bjpowernode.crm.settings.service.DictionaryService;
 import org.apache.commons.lang3.ObjectUtils;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/settings/dictionary")
-public class DictionaryController {
+public class DictionaryController extends Settings {
 
     @Autowired
     private DictionaryService dictionaryService;
@@ -118,5 +119,43 @@ public class DictionaryController {
                 .msg(State.DB_SAVE_ERROR.getMsg())
                 .success(false)
                 .build();
+    }
+
+
+    /*
+        根据code查询字典类型数据,并跳转到修改页面操作
+     */
+    @RequestMapping("/type/toEdit.do")
+    public String toTypeEdit(@RequestParam("code")String code,Model model){
+        //通过code查询字典类型对象
+        DictionaryType dictionaryType = dictionaryService.findDictionaryType(code);
+
+        //如果字典类型对象不为空,存入到Model对象中,携带到页面进行加载
+        if(ObjectUtils.isNotEmpty(dictionaryType))
+            model.addAttribute("dictionaryType",dictionaryType);
+
+        //跳转到字典类型的修改页面
+        return "/settings/dictionary/type/edit";
+    }
+
+    /*
+        修改字典类型操作
+            一定要记住接收参数的注解的使用
+                @RequestBody
+                @RequestParam
+     */
+    @RequestMapping("/type/updateDictionaryType.do")
+    @ResponseBody
+    public R updateDictionaryType(@RequestBody DictionaryType dictionaryType){
+        //校验参数的合法性
+        checked(
+                //只校验必传的参数,而不是校验所有参数信息
+                dictionaryType.getCode()
+        );
+
+        //更新操作
+        boolean flag = dictionaryService.updateDictionaryType(dictionaryType);
+
+        return flag ? ok() : err(State.DB_UPDATE_ERROR);
     }
 }

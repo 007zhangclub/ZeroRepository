@@ -22,6 +22,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 			//2. 反选操作
 			reverseAll();
+
+			//3. 跳转到修改页面
+			toEdit();
 		})
 	</script>
 
@@ -38,7 +41,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 	<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;left: 30px;">
 		<div class="btn-group" style="position: relative; top: 18%;">
 		  <button type="button" class="btn btn-primary" onclick="window.location.href='settings/dictionary/type/toSave.do'"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-		  <button type="button" class="btn btn-default" onclick="window.location.href='edit.jsp'"><span class="glyphicon glyphicon-edit"></span> 编辑</button>
+		  <button type="button" class="btn btn-default" id="toEditBtn"><span class="glyphicon glyphicon-edit"></span> 编辑</button>
 		  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 		</div>
 	</div>
@@ -56,7 +59,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<tbody>
 				<c:forEach items="${dictionaryTypeList}" var="dt" varStatus="dts">
 					<tr class="${dts.index%2==0?'active':''}">
-						<td><input type="checkbox" name="flag"/></td>
+						<td><input type="checkbox" name="flag" value="${dt.code}"/></td>
 						<td>${dts.count}</td>
 						<td>${dt.code}</td>
 						<td>${dt.name}</td>

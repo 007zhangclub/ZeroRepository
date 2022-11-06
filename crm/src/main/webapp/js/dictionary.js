@@ -96,3 +96,68 @@ function saveDictionaryType() {
         )
     })
 }
+
+
+function toEdit() {
+    //给编辑按钮,添加点击事件
+    $("#toEditBtn").click(function () {
+        //当点击了编辑按钮后,我们需要获取选中的复选框的标签对象(数组,集合)
+        let flags = $("input[name=flag]:checked");
+
+        //判断是否选中了一条记录
+        if(flags.length != 1){
+            //选中了多个或没有选中
+            /*
+                什么时候用alert
+                    页面的内容数据较多时,alert方式的提示较为明显
+                    比如列表页面...
+                什么时候用标签来提示
+                    页面的数据较少时,通过标签来提示,比较醒目
+                    比如新增页面...
+             */
+            alert("请选择一条需要修改的数据");
+            return;
+        }
+
+        //校验通过
+        //获取复选框中的value属性(编码内容),来发送请求进行查询
+        let code = flags[0].value;
+
+        //我们直接进行发送请求跳转页面即可,不需要发送异步的请求
+        //要在后台控制器中,直接进行页面的跳转
+        to("settings/dictionary/type/toEdit.do?code="+code);
+    })
+}
+
+
+
+function updateDictionaryType() {
+    //给更新按钮,添加点击事件
+    $("#updateDictionaryTypeBtn").click(function () {
+        //获取页面中的属性信息
+        let code = $("#code").val();
+        let name = $("#name").val();
+        let description = $("#description").val();
+
+        //虽然页面中是只读的输入框,无法修改数据,但是我们可以通过代码的方式进行侵入
+        //在这个地方为了提高代码的健壮性,必须要进行业务逻辑的判断
+        if(code == ""){
+            $("#msg").html("页面数据加载异常,请刷新后再试");
+            return;
+        }
+
+        //发送post请求,进行修改操作的提交
+        post(
+            "settings/dictionary/type/updateDictionaryType.do",
+            {
+                code:code,
+                name:name,
+                description:description,
+            },data=>{
+                if(checked(data)) return;
+                //修改成功,跳转到字典类型列表页面
+                to("settings/dictionary/type/toIndex.do");
+            }
+        )
+    })
+}

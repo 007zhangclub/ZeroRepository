@@ -33,4 +33,9 @@ public class DictionaryServiceImpl implements DictionaryService {
     public boolean saveDictionaryType(DictionaryType dictionaryType) {
         return dictionaryTypeDao.insert(dictionaryType) > 0;
     }
+
+    @Override
+    public boolean updateDictionaryType(DictionaryType dictionaryType) {
+        return dictionaryTypeDao.update(dictionaryType) > 0;
+    }
 }

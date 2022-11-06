@@ -1,14 +1,22 @@
 package com.bjpowernode.crm.settings.web.controller;
 
+import com.bjpowernode.crm.entity.R;
+import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.settings.domain.DictionaryType;
 import com.bjpowernode.crm.settings.service.DictionaryService;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/settings/dictionary")
@@ -21,7 +29,7 @@ public class DictionaryController {
     跳转到字典模块首页面
      */
     @RequestMapping("/toIndex.do")
-    public String toIndex(){
+    public String toIndex() {
         return "/settings/dictionary/index";
     }
 
@@ -29,24 +37,86 @@ public class DictionaryController {
     跳转到字典类型模块首页面
      */
     @RequestMapping("/type/toIndex.do")
-    public String toTypeIndex(Model model){
+    public String toTypeIndex(Model model) {
 
         //查询出字典类型列表数据
         List<DictionaryType> dictionaryTypeList = dictionaryService.findDictionaryTypeList();
 
         //校验
-        if(!CollectionUtils.isEmpty(dictionaryTypeList))
+        if (!CollectionUtils.isEmpty(dictionaryTypeList))
             //存入到model中,携带到页面
-            model.addAttribute("dictionaryTypeList",dictionaryTypeList);
+            model.addAttribute("dictionaryTypeList", dictionaryTypeList);
 
         return "/settings/dictionary/type/index";
+    }
+
+
+    @RequestMapping("/type/toSave.do")
+    public String toTypeSave() {
+        return "/settings/dictionary/type/save";
     }
 
     /*
     跳转到字典值模块首页面
      */
     @RequestMapping("/value/toIndex.do")
-    public String toValueIndex(){
+    public String toValueIndex() {
         return "/settings/dictionary/value/index";
+    }
+
+
+    @RequestMapping("/type/checkCode.do")
+    @ResponseBody
+    public R checkCode(@RequestParam("code") String code) {
+        //可以查询数据库,查询编码是否存在
+        //可以通过编码查询字典类型的数量
+        //select count(id) from tbl_dic_type where code = #{code} -> 返回值是int类型
+        //也可以通过编码查询字典类型对象
+        //select * from tbl_dic_type where code = #{code} -> 返回值是对象
+        DictionaryType dictionaryType = dictionaryService.findDictionaryType(code);
+
+        //数据库没有查询到当前的字典类型对象,证明当前的编码是可以新增的
+        if (ObjectUtils.isEmpty(dictionaryType))
+            return R.builder()
+                    .code(State.SUCCESS.getCode())
+                    .msg(State.SUCCESS.getMsg())
+                    .success(true)
+                    .build();
+        else
+            //数据库查询到了当前的编码对应的字典类型对象,不能够新增
+            return R.builder()
+                    .code(State.DB_FIND_EXISTS_ERROR.getCode())
+                    .msg(State.DB_FIND_EXISTS_ERROR.getMsg())
+                    .success(false)
+                    .build();
+    }
+
+
+    @RequestMapping("/type/saveDictionaryType.do")
+    @ResponseBody
+    //public R saveDictionaryType(@RequestBody Map<String,String> dictionaryType){
+    public R saveDictionaryType(@RequestBody DictionaryType dictionaryType) {
+        //校验参数信息
+        if (StringUtils.isBlank(dictionaryType.getCode()))
+            throw new RuntimeException(State.PARAMS_ERROR.getMsg());
+
+        //校验通过,新增字典类型
+        //在配置文件中通过Spring声明式事务控制来进行事务的操作
+        //service的命名方法,必须以save update delete开头
+        boolean flag = dictionaryService.saveDictionaryType(dictionaryType);
+
+        return flag
+                ?
+                R.builder()
+                .code(State.SUCCESS.getCode())
+                .msg(State.SUCCESS.getMsg())
+                .success(true)
+                .build()
+                :
+                R.builder()
+                .code(State.DB_SAVE_ERROR.getCode())
+                .msg(State.DB_SAVE_ERROR.getMsg())
+                .success(false)
+                .build();
     }
 }

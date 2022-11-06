@@ -49,3 +49,11 @@ function post4m(url,data,successCallBack,errorCallBack) {
 function to(url) {
     window.location.href = url;
 }
+
+
+function checked(data){
+    if(!data.success){
+        alert(data.msg);
+    }
+    return !data.success;
+}

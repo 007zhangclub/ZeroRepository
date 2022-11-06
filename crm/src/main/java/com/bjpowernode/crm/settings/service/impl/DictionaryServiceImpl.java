@@ -23,4 +23,14 @@ public class DictionaryServiceImpl implements DictionaryService {
     public List<DictionaryType> findDictionaryTypeList() {
         return dictionaryTypeDao.findAll();
     }
+
+    @Override
+    public DictionaryType findDictionaryType(String code) {
+        return dictionaryTypeDao.findOne(code);
+    }
+
+    @Override
+    public boolean saveDictionaryType(DictionaryType dictionaryType) {
+        return dictionaryTypeDao.insert(dictionaryType) > 0;
+    }
 }

@@ -18,6 +18,11 @@ public enum State {
     FAILED(20001,"请求失败"),
     STATE_CODE_ERROR(20002,"状态码信息异常"),
     PARAMS_ERROR(20003,"参数信息传递异常"),
+    DB_FIND_EXISTS_ERROR(20004,"数据已存在"),
+    DB_FIND_NOT_EXISTS_ERROR(20005,"数据已不存在"),
+    DB_SAVE_ERROR(20006,"数据新增失败"),
+    DB_UPDATE_ERROR(20007,"数据更新失败"),
+    DB_DELETE_ERROR(20008,"数据删除失败"),
 
 
     /*

@@ -24,10 +24,11 @@ function login() {
 
         //发送post请求,进行登录操作
         post4m(
-            "settings/user/login.do",
+            $("#autoFlag").prop("checked") ? "settings/user/login.do?flag=a" : "settings/user/login.do",
             {
                 loginAct:loginAct,
                 loginPwd:loginPwd,
+                //flag: $("#autoFlag").prop("checked") ? "a" : ""
             },data=>{
                 //data是我们服务器返回的数据
                 // {code:20000,msg:xxx,success:true} 请求成功的返回信息
@@ -35,7 +36,8 @@ function login() {
                 //如果是查询 {code:20000,msg:xxx,success:true,data:xxx}
                 if(data.success)
                     //登录成功,后续我们要跳转到工作台首页面
-                    $("#msg").html(data.msg);
+                    //$("#msg").html(data.msg);
+                    to("workbench/toIndex.do")
                 else
                     $("#msg").html(data.msg);
             }

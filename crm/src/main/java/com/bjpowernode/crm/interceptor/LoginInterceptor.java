@@ -1,5 +1,7 @@
 package com.bjpowernode.crm.interceptor;
 
+import com.bjpowernode.crm.enums.State;
+import com.bjpowernode.crm.exception.TraditionRequestException;
 import com.bjpowernode.crm.settings.domain.User;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -26,7 +28,9 @@ public class LoginInterceptor implements HandlerInterceptor {
         //没有登录,不允许访问
         if(ObjectUtils.isEmpty(user))
             //当前的请求不包含,登录和跳转到登录页面操作
-            return false;
+            //return false;
+            //也可以通过抛出异常的方式来控制页面的跳转
+            throw new TraditionRequestException(State.USER_NO_AUTHORIZATION.getMsg());
 
         //放行
         return true;

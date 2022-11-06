@@ -44,3 +44,8 @@ function post4m(url,data,successCallBack,errorCallBack) {
         error:errorCallBack
     })
 }
+
+
+function to(url) {
+    window.location.href = url;
+}

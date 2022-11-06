@@ -5,18 +5,24 @@ import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.settings.service.UserService;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -27,10 +33,64 @@ public class UserController {
     private UserService userService;
 
     /*
-        跳转到登录页面
+    跳转到登录页面 + 十天免登录② (自动登录,从Cookie中获取用户名和密码自动登录)
      */
     @RequestMapping(UserConstants.TO_LOGIN_URL)
-    public String toLogin(){
+    public String toLogin(HttpServletRequest request){
+
+        /*
+        十天免登录操作②,从Cookie中获取用户名和密码完成自动登录,跳转到工作台页面的功能
+         */
+        Cookie[] cookies = request.getCookies();
+
+        //遍历Cookie
+        String loginAct = "";
+        String loginPwd = "";
+
+//          通过普通for循环来遍历获取
+//        if(ObjectUtils.isNotEmpty(cookies)){
+//            for (Cookie cookie : cookies) {
+//                if(cookie.getName().equals(UserConstants.LOGIN_ACT_PREFIX)){
+//                    loginAct = cookie.getValue();
+//                    continue;
+//                }
+//                if(cookie.getName().equals(UserConstants.LOGIN_PWD_PREFIX))
+//                    loginPwd = cookie.getValue();
+//            }
+//        }
+
+        if(ObjectUtils.isNotEmpty(cookies)){
+            // 通过stream api的方式来遍历获取
+            List<Cookie> cookieList = Arrays.asList(cookies);
+
+            //通过filter方法来过滤出集合中的数据的name为loginAct的元素,将它转换为集合(只有一条数据)
+            List<Cookie> loginActList = cookieList.stream().filter(cookie -> cookie.getName().equals(UserConstants.LOGIN_ACT_PREFIX)).collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(loginActList))
+                loginAct = loginActList.get(0).getValue();
+
+            List<Cookie> loginPwdList = cookieList.stream().filter(cookie -> cookie.getName().equals(UserConstants.LOGIN_PWD_PREFIX)).collect(Collectors.toList());
+
+            if(!CollectionUtils.isEmpty(loginPwdList))
+                loginPwd = loginPwdList.get(0).getValue();
+        }
+
+        if(StringUtils.isNoneBlank(loginAct,loginPwd)){
+            //获取ip地址
+            String ip = request.getRemoteAddr();
+            //自动登录操作
+            User user = userService.findUserByLoginActAndLoginPwd(loginAct,loginPwd,ip);
+
+            if(ObjectUtils.isNotEmpty(user)){
+                //存入Session,并跳转到工作台页面
+                request.getSession().setAttribute(UserConstants.USER_PREFIX,user);
+
+                return "/workbench/index";
+            }
+
+        }
+
+
         //视图解析器会根据返回的字符串进行拼接,找到我们指定的页面路径
         //前缀: /WEB-INF/jsp
         //返回值: /login
@@ -40,14 +100,15 @@ public class UserController {
 
 
     /*
-    登录操作
+    登录操作 + 十天免登录操作① (将用户名和密码(加密的)存入到Cookie中)
      */
     @RequestMapping(UserConstants.LOGIN_URL)
     @ResponseBody//当前返回值转换为json数据返回
     //通过get或post的表单当时来传递数据
     public R login(@RequestParam(UserConstants.LOGIN_ACT_PREFIX)String loginAct,
                    @RequestParam(UserConstants.LOGIN_PWD_PREFIX)String loginPwd,
-                   HttpServletRequest request){
+                   @RequestParam(required = false) String flag,
+                   HttpServletRequest request, HttpServletResponse response){
     //public R login(User user){
     //通过post的json数据传递
     //public R login(@RequestBody Map<String,String> user){
@@ -70,6 +131,31 @@ public class UserController {
 
         //登录成功,我们将User对象存入到Session中
         request.getSession().setAttribute(UserConstants.USER_PREFIX,user);
+
+        //十天免登录①
+        /*
+        将用户名和已加密的密码存入到Cookie中,为后续自动登录提供服务
+         */
+        if(StringUtils.isNotBlank(flag)){
+
+            if(!StringUtils.equals(flag,"a"))
+                //传入标记异常
+                throw new RuntimeException(State.PARAMS_ERROR.getMsg());
+
+            //将用户名和密码存入到Cookie中,从user对象中获取
+            Cookie loginActCookie = new Cookie(UserConstants.LOGIN_ACT_PREFIX,user.getLoginAct());
+            Cookie loginPwdCookie = new Cookie(UserConstants.LOGIN_PWD_PREFIX,user.getLoginPwd());
+
+            //设置Cookie的属性
+            loginActCookie.setPath("/");
+            loginActCookie.setMaxAge(60 * 60 * 24 * 10);
+            loginPwdCookie.setPath("/");
+            loginPwdCookie.setMaxAge(60 * 60 * 24 * 10);
+
+            //通过response对象,将Cookie写回浏览器中
+            response.addCookie(loginActCookie);
+            response.addCookie(loginPwdCookie);
+        }
 
         //登录成功,返回R对象
         return R.builder()

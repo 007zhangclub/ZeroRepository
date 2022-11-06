@@ -42,6 +42,13 @@ public class UserServiceImpl implements UserService {
         if(!matches)
             throw new RuntimeException(State.USER_LOGIN_ACT_OR_LOGIN_PWD_ERROR.getMsg());
 
+        checkUser(user,ip);
+
+        //用户登录成功
+        return user;
+    }
+
+    private void checkUser(User user, String ip) {
         //登录属性校验
         /*
             过期时间,和当前时间进行比对,如果当前时间比过期时间大,证明账户已过期
@@ -74,8 +81,20 @@ public class UserServiceImpl implements UserService {
         if(StringUtils.isNotBlank(allowIps))
             if(!allowIps.contains(ip))
                 throw new RuntimeException(State.USER_ACCOUNT_IP_NOT_ALLOW_ERROR.getMsg());
+    }
 
-        //用户登录成功
+    @Override
+    public User findUserByLoginActAndLoginPwd(String loginAct, String loginPwd, String ip) {
+
+        //根据用户名和密码查询用户信息
+        User user = userDao.findUserByLoginActAndLoginPwd(loginAct,loginPwd);
+
+        if(ObjectUtils.isEmpty(user))
+            //抛出异常,代码不再向下进行
+            throw new RuntimeException(State.USER_LOGIN_ACT_OR_LOGIN_PWD_ERROR.getMsg());
+
+        checkUser(user,ip);
+
         return user;
     }
 

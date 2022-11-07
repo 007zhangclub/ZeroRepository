@@ -293,3 +293,63 @@ function reverseValueAll() {
         )
     })
 }
+
+
+
+function getDictionaryTypeList() {
+    get(
+        "settings/dictionary/type/getDictionaryTypeList.do",
+        {},
+        data=>{
+            if(checked(data)) return;
+
+            //异步加载操作
+            loadHtml(
+                $("#create-typeCode"),
+                data,
+                function (i, n) {
+                    return "<option value="+n.code+">"+n.name+"</option>"
+                },
+                "<option></option>"
+            )
+        }
+    )
+}
+
+
+
+function saveDictionaryValue() {
+    $("#saveDictionaryValueBtn").click(function () {
+        //获取属性信息
+        let text = $("#create-text").val();
+        let value = $("#create-value").val();
+        let orderNo = $("#create-orderNo").val();
+        let typeCode = $("#create-typeCode").val();
+
+        if(typeCode == ""){
+            alert("字典类型编码不能为空");
+            return;
+        }
+
+        if(value == ""){
+            alert("字典值不能为空");
+            return;
+        }
+
+        //校验通过
+        post(
+            "settings/dictionary/value/saveDictionaryValue.do",
+            {
+                text:text,
+                value:value,
+                orderNo:orderNo,
+                typeCode:typeCode,
+            },data=>{
+                if(checked(data)) return;
+
+                //新增成功,跳转到字典值首页面
+                to("settings/dictionary/value/toIndex.do")
+            }
+        )
+    })
+}

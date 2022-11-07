@@ -104,3 +104,128 @@ function reverseValueAll() {
     })
 }
 ```
+
+
+## 新增字典值操作
+### 加载字典类型列表数据
+* 前端代码
+```javascript
+function getDictionaryTypeList() {
+    get(
+        "settings/dictionary/type/getDictionaryTypeList.do",
+        {},
+        data=>{
+            if(checked(data)) return;
+
+            //异步加载操作
+            loadHtml(
+                $("#create-typeCode"),
+                data,
+                function (i, n) {
+                    return "<option value="+n.code+">"+n.name+"</option>"
+                },
+                "<option></option>"
+            )
+        }
+    )
+}
+```
+
+* 后台代码
+```java
+@RequestMapping("/type/getDictionaryTypeList.do")
+@ResponseBody
+public R getDictionaryTypeList(){
+    //查询字典类型列表数据
+    List<DictionaryType> dictionaryTypeList = dictionaryService.findDictionaryTypeList();
+
+    return okAndCheck(dictionaryTypeList);
+}
+```
+
+### 新增操作
+* 前端代码
+```javascript
+function saveDictionaryValue() {
+    $("#saveDictionaryValueBtn").click(function () {
+        //获取属性信息
+        let text = $("#create-text").val();
+        let value = $("#create-value").val();
+        let orderNo = $("#create-orderNo").val();
+        let typeCode = $("#create-typeCode").val();
+
+        if(typeCode == ""){
+            alert("字典类型编码不能为空");
+            return;
+        }
+
+        if(value == ""){
+            alert("字典值不能为空");
+            return;
+        }
+
+        //校验通过
+        post(
+            "settings/dictionary/value/saveDictionaryValue.do",
+            {
+                text:text,
+                value:value,
+                orderNo:orderNo,
+                typeCode:typeCode,
+            },data=>{
+                if(checked(data)) return;
+
+                //新增成功,跳转到字典值首页面
+                to("settings/dictionary/value/toIndex.do")
+            }
+        )
+    })
+}
+```
+
+* 后台代码
+```java
+@RequestMapping("/value/saveDictionaryValue.do")
+@ResponseBody
+public R saveDictionaryValue(@RequestBody DictionaryValue dictionaryValue){
+    //校验
+    checked(
+            dictionaryValue.getTypeCode(),
+            dictionaryValue.getValue()
+    );
+
+    return ok(
+            //新增之前需要先进行赋值操作,id,可以通过UUID的方式来新增
+            dictionaryService.saveDictionaryValue(
+                    dictionaryValue.setId(IdUtils.getId())
+            ),
+            State.DB_SAVE_ERROR
+    );
+}
+```
+
+## 字典值模块-作业
+> 业务逻辑请参考,字典类型的修改和删除操作
+> 字典值的删除操作,无需考虑一对多关系,因为我们删除的就是多方数据,可以直接删除
+* 字典值修改操作
+* 字典值的删除操作
+
+
+## 市场活动模块介绍
+> 公司中举办的活动,我们在该模块中全部都能查询得到
+> 市场活动模块和市场活动详情模块及线索和联系人模块都有相应的关联
+
+## 市场活动表关系
+* tbl_activity
+    * id `主键`
+    * owner `外键,用户表`
+    * name `活动名称`
+    * startDate `开始日期`
+    * endDate `结束日期`
+    * cost `成本`
+    * description `描述`
+    * createTime `创建时间`
+    * createBy `创建人`
+    * editTime `修改时间`
+    * editBy `修改人`
+    * isDelete `逻辑删除标记`

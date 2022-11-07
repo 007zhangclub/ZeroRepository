@@ -93,6 +93,18 @@ public class Settings {
                 .build();
     }
 
+    public <T> R<?> ok(boolean flag,State state){
+        if(flag)
+            return R.builder()
+                    .code(State.SUCCESS.getCode())
+                    .msg(State.SUCCESS.getMsg())
+                    .success(true)
+                    .build();
+
+        throw new RuntimeException(state.getMsg());
+
+    }
+
 
     public <T> R<?> ok(State state, T data){
         return R.builder()

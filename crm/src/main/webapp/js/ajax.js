@@ -71,3 +71,20 @@ function load(jqueryObj,data,callBack){
     //3. 将html字符串,加载到标签容器中
     $(jqueryObj).html(html);
 }
+
+
+function loadHtml(jqueryObj,data,callBack,initHtml){
+    //1. 定义字符串,用于封装标签数据
+    let html = "";
+
+    //2. 遍历集合数据,将标签的模板加载为动态的数据
+    $.each(data.data,function (i,n) {
+        //初始化标签
+        if (i==0) html += initHtml;
+
+        html += callBack(i,n);
+    })
+
+    //3. 将html字符串,加载到标签容器中
+    $(jqueryObj).html(html);
+}

@@ -78,4 +78,9 @@ public class DictionaryServiceImpl implements DictionaryService {
     public List<DictionaryValue> findDictionaryValueList() {
         return dictionaryValueDao.findAll();
     }
+
+    @Override
+    public boolean saveDictionaryValue(DictionaryValue dictionaryValue) {
+        return dictionaryValueDao.insert(dictionaryValue) > 0;
+    }
 }

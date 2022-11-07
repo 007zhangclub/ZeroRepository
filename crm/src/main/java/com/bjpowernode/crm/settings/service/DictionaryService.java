@@ -17,4 +17,6 @@ public interface DictionaryService {
     List<String> deleteDictionaryList(List<String> codes);
 
     List<DictionaryValue> findDictionaryValueList();
+
+    boolean saveDictionaryValue(DictionaryValue dictionaryValue);
 }

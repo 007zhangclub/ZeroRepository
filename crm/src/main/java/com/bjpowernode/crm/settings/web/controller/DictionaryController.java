@@ -6,6 +6,7 @@ import com.bjpowernode.crm.settings.base.Settings;
 import com.bjpowernode.crm.settings.domain.DictionaryType;
 import com.bjpowernode.crm.settings.domain.DictionaryValue;
 import com.bjpowernode.crm.settings.service.DictionaryService;
+import com.bjpowernode.crm.utils.IdUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -194,5 +195,43 @@ public class DictionaryController extends Settings {
         List<DictionaryValue> dictionaryValueList = dictionaryService.findDictionaryValueList();
 
         return okAndCheck(dictionaryValueList);
+    }
+
+
+
+    @RequestMapping("/value/toSave.do")
+    public String toValueSave(){
+        return "/settings/dictionary/value/save";
+    }
+
+
+
+    @RequestMapping("/type/getDictionaryTypeList.do")
+    @ResponseBody
+    public R getDictionaryTypeList(){
+        //查询字典类型列表数据
+        List<DictionaryType> dictionaryTypeList = dictionaryService.findDictionaryTypeList();
+
+        return okAndCheck(dictionaryTypeList);
+    }
+
+
+
+    @RequestMapping("/value/saveDictionaryValue.do")
+    @ResponseBody
+    public R saveDictionaryValue(@RequestBody DictionaryValue dictionaryValue){
+        //校验
+        checked(
+                dictionaryValue.getTypeCode(),
+                dictionaryValue.getValue()
+        );
+
+        return ok(
+                //新增之前需要先进行赋值操作,id,可以通过UUID的方式来新增
+                dictionaryService.saveDictionaryValue(
+                        dictionaryValue.setId(IdUtils.getId())
+                ),
+                State.DB_SAVE_ERROR
+        );
     }
 }

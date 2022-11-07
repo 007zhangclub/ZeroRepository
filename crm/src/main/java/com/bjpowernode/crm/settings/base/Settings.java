@@ -131,4 +131,18 @@ public class Settings {
                 .build();
     }
 
+    public <T> R<?> okAndCheck(T data){
+
+        if(ObjectUtils.isEmpty(data))
+            throw new RuntimeException(State.PARAMS_ERROR.getMsg());
+
+        return R.builder()
+                .code(State.SUCCESS.getCode())
+                .msg(State.SUCCESS.getMsg())
+                .success(true)
+                .data(data)
+                .build();
+    }
+
+
 }

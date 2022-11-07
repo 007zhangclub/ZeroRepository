@@ -1,6 +1,7 @@
 package com.bjpowernode.crm.settings.service;
 
 import com.bjpowernode.crm.settings.domain.DictionaryType;
+import com.bjpowernode.crm.settings.domain.DictionaryValue;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface DictionaryService {
     boolean updateDictionaryType(DictionaryType dictionaryType);
 
     List<String> deleteDictionaryList(List<String> codes);
+
+    List<DictionaryValue> findDictionaryValueList();
 }

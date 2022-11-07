@@ -4,6 +4,7 @@ import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.settings.base.Settings;
 import com.bjpowernode.crm.settings.domain.DictionaryType;
+import com.bjpowernode.crm.settings.domain.DictionaryValue;
 import com.bjpowernode.crm.settings.service.DictionaryService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -183,5 +184,15 @@ public class DictionaryController extends Settings {
                 ok() :
                 //可能全部失败,或部分失败
                 ok(State.DB_DELETE_ERROR, relationCodeList, false);
+    }
+
+
+    @RequestMapping("/value/getDictionaryValueList.do")
+    @ResponseBody
+    public R getDictionaryValueList(){
+        //查询所有的数据字典值的列表
+        List<DictionaryValue> dictionaryValueList = dictionaryService.findDictionaryValueList();
+
+        return okAndCheck(dictionaryValueList);
     }
 }

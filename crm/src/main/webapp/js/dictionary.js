@@ -204,3 +204,92 @@ function batchDelete() {
             )
     })
 }
+
+
+function getDictionaryValueList() {
+    get(
+        "settings/dictionary/value/getDictionaryValueList.do",
+        {},
+        data=>{
+            if(checked(data))
+                return;
+
+            //异步加载
+            /*
+                最终将数据异步加载到页面的标签对象中
+
+                页面中只提供标签对象
+
+                在js代码中以字符串的方式来封装加载的标签数据,最终填充到标签对象中
+             */
+            // //1. 定义字符串,用于封装标签数据
+            // let html = "";
+            //
+            // //2. 遍历集合数据,将标签的模板加载为动态的数据
+            // $.each(data.data,function (i, n) {
+            //     html += '<tr class="'+(i%2==0?'active':'')+'">';
+            //     html += '<td><input type="checkbox"/></td>';
+            //     html += '<td>'+(i+1)+'</td>';
+            //     html += '<td>'+n.value+'</td>';
+            //     html += '<td>'+n.text+'</td>';
+            //     html += '<td>'+n.orderNo+'</td>';
+            //     html += '<td>'+n.typeCode+'</td>';
+            //     html += '</tr>';
+            // })
+            //
+            // //3. 将html字符串,加载到标签容器中
+            // $("#dictionaryValueListBody").html(html);
+
+            //将异步加载抽取成一个方法,提高开发效率
+            load(
+                $("#dictionaryValueListBody"),
+                data,
+                //这两种方式都可以封装回调方法参数
+                // function (i,n) {
+                //
+                // }
+                (i,n) =>{
+                    return  '<tr class="'+(i%2==0?'active':'')+'">'+
+                            '<td><input name="flag" type="checkbox"/></td>'+
+                            '<td>'+(i+1)+'</td>'+
+                            '<td>'+n.value+'</td>'+
+                            '<td>'+n.text+'</td>'+
+                            '<td>'+n.orderNo+'</td>'+
+                            '<td>'+n.typeCode+'</td>'+
+                            '</tr>';
+                }
+            )
+        }
+    )
+}
+
+
+
+function selectValueAll() {
+    $("#selectAllBtn").click(function (){
+        //获取所有复选框的标签对象
+        $("input[name=flag]").prop("checked",this.checked);
+    })
+}
+
+
+function reverseValueAll() {
+    //按照之前的方式来实现反选操作,结论:这种方式无法直接给异步加载的标签对象绑定事件
+    //注意之前的方式是,全选框和复选框的加载都在jsp页面中
+    //$("input[name=flag]").click(function () {
+    //    alert("123")
+    //})
+
+    //现在的方式,全选框在jsp页面中加载的,复选框在js文件中加载的
+    //如何给异步加载的标签对象绑定事件,要通过页面中的父标签向子标签来传递事件
+    //通过父标签来给子标签绑定事件
+    //参数1,传递的事件名称
+    //参数2,传递的jquery对象
+    //参数3,回调方法
+    $("#dictionaryValueListBody").on("click","input[name=flag]",function () {
+        $("#selectAllBtn").prop(
+            "checked",
+            $("input[name=flag]").length == $("input[name=flag]:checked").length
+        )
+    })
+}

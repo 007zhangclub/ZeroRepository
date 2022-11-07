@@ -73,4 +73,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         return CollectionUtils.isEmpty(relationList) ? null : relationList;
     }
+
+    @Override
+    public List<DictionaryValue> findDictionaryValueList() {
+        return dictionaryValueDao.findAll();
+    }
 }

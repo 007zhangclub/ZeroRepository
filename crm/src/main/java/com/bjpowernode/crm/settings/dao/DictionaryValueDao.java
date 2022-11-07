@@ -8,4 +8,7 @@ import java.util.List;
 public interface DictionaryValueDao {
     @Select("select * from tbl_dic_value where typeCode = #{code}")
     List<DictionaryValue> findList(String code);
+
+    @Select("select * from tbl_dic_value order by orderNo asc")
+    List<DictionaryValue> findAll();
 }

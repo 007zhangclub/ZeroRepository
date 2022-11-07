@@ -11,6 +11,21 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="js/ajax.js"></script>
+	<script type="text/javascript" src="js/dictionary.js"></script>
+	<script>
+		$(function () {
+			//1. 加载字典值列表数据
+			getDictionaryValueList();
+
+			//2. 全选操作
+			selectValueAll();
+
+			//3. 反选操作
+			reverseValueAll();
+		})
+	</script>
 </head>
 <body>
 
@@ -32,7 +47,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		<table class="table table-hover">
 			<thead>
 				<tr style="color: #B3B3B3;">
-					<td><input type="checkbox" /></td>
+					<td><input id="selectAllBtn" type="checkbox" /></td>
 					<td>序号</td>
 					<td>字典值</td>
 					<td>文本</td>
@@ -40,47 +55,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					<td>字典类型编码</td>
 				</tr>
 			</thead>
-			<tbody>
-				<tr class="active">
-					<td><input type="checkbox" /></td>
-					<td>1</td>
-					<td>m</td>
-					<td>男</td>
-					<td>1</td>
-					<td>sex</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" /></td>
-					<td>2</td>
-					<td>f</td>
-					<td>女</td>
-					<td>2</td>
-					<td>sex</td>
-				</tr>
-				<tr class="active">
-					<td><input type="checkbox" /></td>
-					<td>3</td>
-					<td>1</td>
-					<td>一级部门</td>
-					<td>1</td>
-					<td>orgType</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" /></td>
-					<td>4</td>
-					<td>2</td>
-					<td>二级部门</td>
-					<td>2</td>
-					<td>orgType</td>
-				</tr>
-				<tr class="active">
-					<td><input type="checkbox" /></td>
-					<td>5</td>
-					<td>3</td>
-					<td>三级部门</td>
-					<td>3</td>
-					<td>orgType</td>
-				</tr>
+			<tbody id="dictionaryValueListBody">
 			</tbody>
 		</table>
 	</div>

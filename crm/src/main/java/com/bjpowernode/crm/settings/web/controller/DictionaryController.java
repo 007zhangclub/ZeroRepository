@@ -25,8 +25,7 @@ import java.util.Map;
 @RequestMapping("/settings/dictionary")
 public class DictionaryController extends Settings {
 
-    @Autowired
-    private DictionaryService dictionaryService;
+
 
     /*
     跳转到字典模块首页面

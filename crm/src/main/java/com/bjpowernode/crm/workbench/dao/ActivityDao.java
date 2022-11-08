@@ -9,4 +9,8 @@ public interface ActivityDao {
     List<Activity> findPage(@Param("pageNo") Integer pageNo, @Param("pageSize") Integer pageSize, @Param("name") String name, @Param("owner") String owner, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
     int findPageCount(@Param("name") String name, @Param("owner") String owner, @Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    int insert(Activity activity);
+
+    Activity findById(String id);
 }

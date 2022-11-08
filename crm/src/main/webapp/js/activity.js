@@ -27,7 +27,7 @@ function getActivityListPage(pageNo, pageSize) {
                 data,
                 (i,n) => {
                     return  '<tr class="active">'+
-                            '<td><input type="checkbox"/></td>'+
+                            '<td><input type="checkbox" name="flag" value="'+n.id+'"/></td>'+
                             '<td><a style="text-decoration: none; cursor: pointer;" onClick="window.location.href=\'detail.html\';">'+n.name+'</a></td>'+
                             '<td>'+n.username+'</td>'+
                             '<td>'+n.startDate+'</td>'+
@@ -84,4 +84,142 @@ function initDateTimePicker() {
         //组件显示位置,左下方
         pickerPosition: "bottom-left"
     });
+}
+
+
+function openCreateActivityModal() {
+    $("#openCreateActivityModalBtn").click(function () {
+        //发送请求,获取数据
+        get(
+            "settings/user/getUserList.do",
+            {},
+            data=>{
+                if(checked(data))
+                    return;
+                //异步加载
+                loadHtml(
+                    $("#create-owner"),
+                    data,
+                    (i,n) =>{
+                        return "<option value="+n.id+">"+n.name+"</option>"
+                    },
+                    "<option></option>"
+                )
+
+                //默认选中当前登录的用户
+                $("#create-owner").val($("#userId").val());
+
+                //打开模态窗口
+                $("#createActivityModal").modal("show");
+            }
+        )
+    })
+}
+
+
+function saveActivity() {
+    $("#saveActivityBtn").click(function () {
+        //获取市场活动属性信息
+        let name = $("#create-name").val();
+        let owner = $("#create-owner").val();
+        let startDate = $("#create-startDate").val();
+        let endDate = $("#create-endDate").val();
+        let cost = $("#create-cost").val();
+        let description = $("#create-description").val();
+
+        //校验
+        if(name == ""){
+            alert("活动名称不能为空");
+            return;
+        }
+
+        if(owner == ""){
+            alert("所有者不能为空");
+            return;
+        }
+
+        //发送post请求,新增数据
+        post4m(
+            "workbench/activity/saveActivity.do",
+            {
+                name:name,
+                owner:owner,
+                startDate:startDate,
+                endDate:endDate,
+                cost:cost,
+                description:description,
+            },data=>{
+                if(checked(data))
+                    return;
+
+                /*
+                    现在页面中的列表数据我们是异步加载的,那么触发这个分页加载的时机很多
+                        1. 进入页面,加载分页数据
+                        2. 条件过滤查询,加载分页数据
+                        3. 触发前端分页组件,加载分页数据
+                        4. 增删改市场活动操作,加载分页数据
+                        5. 批量的导入,加载分页数据
+                 */
+                //新增成功,刷新列表数据,关闭模态窗口
+                getActivityListPage(1,5);
+
+                $("#createActivityModal").modal("hide");
+            }
+        )
+    })
+}
+
+
+function openEditActivityModal() {
+    $("#openEditActivityModalBtn").click(function () {
+        //获取当前选中的市场活动的标签数据
+        let flags = $("input[name=flag]:checked");
+
+        if(flags.length != 1){
+            //要么没有选中,要么选中多条记录
+            alert("请选择一条需要修改的数据");
+            return;
+        }
+
+        //获取所有者下拉列表数据,发送请求回显数据
+        get(
+            "settings/user/getUserList.do",
+            {},
+            data=>{
+                if(checked(data)) return;
+
+                //回显数据
+                load(
+                    $("#edit-owner"),
+                    data,
+                    (i,n) =>{
+                        return "<option value="+n.id+">"+n.name+"</option>"
+                    }
+                )
+
+                //加载成功后,获取市场活动的id,发送请求回显数据
+                get(
+                    "workbench/activity/getActivity.do",
+                    {id:flags[0].value},
+                    data=>{
+                        if(checked(data)) return;
+
+                        //回显数据
+                        //根据用户id回显所有者下拉框中的数据,默认选中
+                        $("#edit-owner").val(data.data.owner);
+                        $("#edit-name").val(data.data.name);
+                        $("#edit-startDate").val(data.data.startDate);
+                        $("#edit-endDate").val(data.data.endDate);
+                        $("#edit-cost").val(data.data.cost);
+                        $("#edit-description").val(data.data.description);
+                        //将修改的id,存入到隐藏域中,为后续的修改操作做铺垫
+                        $("#edit-id").val(data.data.id);
+
+                        //打开修改的模态窗口
+                        $("#editActivityModal").modal("show");
+                    }
+                )
+            }
+        )
+    })
 }

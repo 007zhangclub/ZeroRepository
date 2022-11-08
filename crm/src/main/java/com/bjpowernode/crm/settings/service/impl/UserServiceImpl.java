@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -96,6 +97,11 @@ public class UserServiceImpl implements UserService {
         checkUser(user,ip);
 
         return user;
+    }
+
+    @Override
+    public List<User> findUserList() {
+        return userDao.findAll();
     }
 
     public static void main(String[] args) throws ParseException {

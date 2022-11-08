@@ -23,4 +23,14 @@ public class ActivityServiceImpl implements ActivityService {
     public int findPageCount(String name, String owner, String startDate, String endDate) {
         return activityDao.findPageCount(name,owner,startDate,endDate);
     }
+
+    @Override
+    public boolean saveActivity(Activity activity) {
+        return activityDao.insert(activity) > 0;
+    }
+
+    @Override
+    public Activity findActivity(String id) {
+        return activityDao.findById(id);
+    }
 }

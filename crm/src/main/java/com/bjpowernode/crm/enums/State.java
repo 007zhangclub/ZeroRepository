@@ -20,9 +20,10 @@ public enum State {
     PARAMS_ERROR(20003,"参数信息传递异常"),
     DB_FIND_EXISTS_ERROR(20004,"数据已存在"),
     DB_FIND_NOT_EXISTS_ERROR(20005,"数据已不存在"),
-    DB_SAVE_ERROR(20006,"数据新增失败"),
-    DB_UPDATE_ERROR(20007,"数据更新失败"),
-    DB_DELETE_ERROR(20008,"数据删除失败"),
+    DB_FIND_ERROR(20006,"数据查询异常"),
+    DB_SAVE_ERROR(20007,"数据新增失败"),
+    DB_UPDATE_ERROR(20008,"数据更新失败"),
+    DB_DELETE_ERROR(20009,"数据删除失败"),
 
 
     /*

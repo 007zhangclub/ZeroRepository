@@ -3,6 +3,7 @@ package com.bjpowernode.crm.settings.web.controller;
 import com.bjpowernode.crm.constants.UserConstants;
 import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
+import com.bjpowernode.crm.settings.base.Settings;
 import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.settings.service.UserService;
 import org.apache.commons.lang3.ObjectUtils;
@@ -27,10 +28,15 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/settings/user")
-public class UserController {
+public class UserController extends Settings {
 
-    @Autowired
-    private UserService userService;
+    @RequestMapping("/getUserList.do")
+    @ResponseBody
+    public R getUserList(){
+        return okAndCheck(
+                userService.findUserList()
+        );
+    }
 
     /*
     跳转到登录页面 + 十天免登录② (自动登录,从Cookie中获取用户名和密码自动登录)

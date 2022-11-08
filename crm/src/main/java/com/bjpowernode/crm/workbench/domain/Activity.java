@@ -26,4 +26,6 @@ public class Activity {
     private String editTime;
     private String editBy;
     private String isDelete;
+    //用户名
+    private String username;
 }

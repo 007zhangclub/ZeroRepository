@@ -33,7 +33,7 @@ lombok注解来生成实体类中的属性
 public class R<T> implements Serializable {
     private Integer code;
     private String  msg;
-    private boolean success;
+    private Boolean success;
     private T data;
     //private Object data;
 }

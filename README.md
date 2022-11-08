@@ -1,131 +1,65 @@
 # Crm项目笔记
 
-## 加载字典值列表 `异步加载`
+## 加载市场活动分页数据
 * 前端代码
 ```javascript
-function getDictionaryValueList() {
+/*
+    将模糊查询和列表查询整合到一起
+ */
+function getActivityListPage(pageNo, pageSize) {
+
+    //获取模糊查询的条件
+    let name = $("#search-name").val();
+    let owner = $("#search-owner").val();
+    let startDate = $("#search-startDate").val();
+    let endDate = $("#search-endDate").val();
+
     get(
-        "settings/dictionary/value/getDictionaryValueList.do",
-        {},
-        data=>{
-            if(checked(data))
-                return;
-
-            //异步加载
-            /*
-                最终将数据异步加载到页面的标签对象中
-
-                页面中只提供标签对象
-
-                在js代码中以字符串的方式来封装加载的标签数据,最终填充到标签对象中
-             */
-            //1. 定义字符串,用于封装标签数据
-            let html = "";
-
-            //2. 遍历集合数据,将标签的模板加载为动态的数据
-            $.each(data.data,function (i, n) {
-                html += '<tr class="'+(i%2==0?'active':'')+'">';
-                html += '<td><input type="checkbox"/></td>';
-                html += '<td>'+(i+1)+'</td>';
-                html += '<td>'+n.value+'</td>';
-                html += '<td>'+n.text+'</td>';
-                html += '<td>'+n.orderNo+'</td>';
-                html += '<td>'+n.typeCode+'</td>';
-                html += '</tr>';
-            })
-
-            //3. 将html字符串,加载到标签容器中
-            $("#dictionaryValueListBody").html(html);
-        }
-    )
-}
-```
-
-* 后台代码
-```java
-@RequestMapping("/value/getDictionaryValueList.do")
-@ResponseBody
-public R getDictionaryValueList(){
-    //查询所有的数据字典值的列表
-    List<DictionaryValue> dictionaryValueList = dictionaryService.findDictionaryValueList();
-
-    return okAndCheck(dictionaryValueList);
-}
-```
-
-
-## 抽取异步加载的方法
-* 前端代码
-```javascript
-function load(jqueryObj,data,callBack){
-    //1. 定义字符串,用于封装标签数据
-    let html = "";
-
-    //2. 遍历集合数据,将标签的模板加载为动态的数据
-    $.each(data.data,function (i,n) {
-        html += callBack(i,n);
-    })
-
-    //3. 将html字符串,加载到标签容器中
-    $(jqueryObj).html(html);
-}
-```
-
-
-## 全选和反选操作 `事件传递`
-* 前端代码
-```javascript
-function selectValueAll() {
-    $("#selectAllBtn").click(function (){
-        //获取所有复选框的标签对象
-        $("input[name=flag]").prop("checked",this.checked);
-    })
-}
-
-
-function reverseValueAll() {
-    //按照之前的方式来实现反选操作,结论:这种方式无法直接给异步加载的标签对象绑定事件
-    //注意之前的方式是,全选框和复选框的加载都在jsp页面中
-    //$("input[name=flag]").click(function () {
-    //    alert("123")
-    //})
-
-    //现在的方式,全选框在jsp页面中加载的,复选框在js文件中加载的
-    //如何给异步加载的标签对象绑定事件,要通过页面中的父标签向子标签来传递事件
-    //通过父标签来给子标签绑定事件
-    //参数1,传递的事件名称
-    //参数2,传递的jquery对象
-    //参数3,回调方法
-    $("#dictionaryValueListBody").on("click","input[name=flag]",function () {
-        $("#selectAllBtn").prop(
-            "checked",
-            $("input[name=flag]").length == $("input[name=flag]:checked").length
-        )
-    })
-}
-```
-
-
-## 新增字典值操作
-### 加载字典类型列表数据
-* 前端代码
-```javascript
-function getDictionaryTypeList() {
-    get(
-        "settings/dictionary/type/getDictionaryTypeList.do",
-        {},
-        data=>{
-            if(checked(data)) return;
-
-            //异步加载操作
-            loadHtml(
-                $("#create-typeCode"),
+        "workbench/activity/getActivityListPage.do",
+        {
+            pageNo:pageNo,
+            pageSize:pageSize,
+            name:name,
+            owner:owner,
+            startDate:startDate,
+            endDate:endDate,
+        },data=>{
+            //这里的返回值,稍微不同
+            //因为列表查询时,可能存在列表为空的问题,所以这里我们也可以不返回code,success,msg属性
+            //可以直接返回分页相关的数据
+            loadPage(
+                $("#activityListBody"),
                 data,
-                function (i, n) {
-                    return "<option value="+n.code+">"+n.name+"</option>"
-                },
-                "<option></option>"
+                (i,n) => {
+                    return  '<tr class="active">'+
+                            '<td><input type="checkbox"/></td>'+
+                            '<td><a style="text-decoration: none; cursor: pointer;" onClick="window.location.href=\'detail.html\';">'+n.name+'</a></td>'+
+                            '<td>'+n.username+'</td>'+
+                            '<td>'+n.startDate+'</td>'+
+                            '<td>'+n.endDate+'</td>'+
+                            '</tr>';
+                }
             )
+
+            //根据分页查询的结果,初始化并加载前端的分页组件
+            $("#activityPage").bs_pagination({
+                currentPage: data.pageNo, // 页码
+                rowsPerPage: data.pageSize, // 每页显示的记录条数
+                maxRowsPerPage: 20, // 每页最多显示的记录条数
+                totalPages: data.totalPages, // 总页数
+                totalRows: data.totalCounts, // 总记录条数
+
+                visiblePageLinks: 3, // 显示几个卡片
+
+                showGoToPage: true,
+                showRowsPerPage: true,
+                showRowsInfo: true,
+                showRowsDefaultInfo: true,
+                //当触发分页组件时的回调方法,那么当点击了分页组件的按钮时,我们发送请求,调用分页方法即可
+                onChangePage : function(event, data){
+                    getActivityListPage(data.currentPage , data.rowsPerPage);
+                }
+            })
         }
     )
 }
@@ -133,99 +67,133 @@ function getDictionaryTypeList() {
 
 * 后台代码
 ```java
-@RequestMapping("/type/getDictionaryTypeList.do")
+@RequestMapping("/getActivityListPage.do")
 @ResponseBody
-public R getDictionaryTypeList(){
-    //查询字典类型列表数据
-    List<DictionaryType> dictionaryTypeList = dictionaryService.findDictionaryTypeList();
+public R getActivityListPage(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
+                                @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
+                                @RequestParam(value = "name", required = false) String name,
+                                @RequestParam(value = "owner", required = false) String owner,
+                                @RequestParam(value = "startDate", required = false) String startDate,
+                                @RequestParam(value = "endDate", required = false) String endDate) {
 
-    return okAndCheck(dictionaryTypeList);
+    //根据分页条件来进行查询数据
+    /*
+        pageNo      分页参数
+        pageSize    分页参数
+        name        模糊查询
+        owner       等值查询
+        startDate   大于等于
+        endDate     小于等于
+     */
+    List<Activity> activityList = activityService.findPage(
+            pageNo,
+            pageSize,
+            name,
+            owner,
+            startDate,
+            endDate
+    );
+
+    /*
+        查询总记录数和计算总页数
+     */
+    int totalCounts = activityService.findPageCount(
+            name,
+            owner,
+            startDate,
+            endDate
+    );
+
+    int totalPages = totalCounts % pageSize == 0 ? totalCounts / pageSize : (totalCounts / pageSize) + 1 ;
+
+    return new Page()
+            .setRecords(activityList)
+            .setTotalCounts(totalCounts)
+            .setTotalPages(totalPages)
+            .setPageNo(pageNo)
+            .setPageSize(pageSize);
+            //.setCode(State.SUCCESS.getCode())
+            //.setMsg(State.SUCCESS.getMsg())
+            //.setSuccess(true);
 }
 ```
 
-### 新增操作
+* Sql
+```xml
+<select id="findPage" resultType="com.bjpowernode.crm.workbench.domain.Activity">
+    select a.*,u.name username from tbl_activity a left join tbl_user u on a.owner = u.id
+    <where>
+        a.isDelete = '0'
+        <if test="name != null and name != ''">
+            and a.name like '%' #{name} '%'
+        </if>
+
+        <if test="owner != null and owner != ''">
+            and u.name = #{owner}
+        </if>
+
+        <if test="startDate != null and startDate != ''">
+            and a.startDate &gt;= #{startDate}
+        </if>
+
+        <if test="endDate != null and endDate != ''">
+            and a.endDate &lt;= #{endDate}
+        </if>
+    </where>
+    limit #{pageNo},#{pageSize}
+</select>
+<select id="findPageCount" resultType="java.lang.Integer">
+    select count(a.id) from tbl_activity a left join tbl_user u on a.owner = u.id
+    <where>
+        a.isDelete = '0'
+        <if test="name != null and name != ''">
+            and a.name like '%' #{name} '%'
+        </if>
+
+        <if test="owner != null and owner != ''">
+            and u.name = #{owner}
+        </if>
+
+        <if test="startDate != null and startDate != ''">
+            and a.startDate &gt;= #{startDate}
+        </if>
+
+        <if test="endDate != null and endDate != ''">
+            and a.endDate &lt;= #{endDate}
+        </if>
+    </where>
+</select>
+```
+
+
+## 条件过滤查询
 * 前端代码
 ```javascript
-function saveDictionaryValue() {
-    $("#saveDictionaryValueBtn").click(function () {
-        //获取属性信息
-        let text = $("#create-text").val();
-        let value = $("#create-value").val();
-        let orderNo = $("#create-orderNo").val();
-        let typeCode = $("#create-typeCode").val();
-
-        if(typeCode == ""){
-            alert("字典类型编码不能为空");
-            return;
-        }
-
-        if(value == ""){
-            alert("字典值不能为空");
-            return;
-        }
-
-        //校验通过
-        post(
-            "settings/dictionary/value/saveDictionaryValue.do",
-            {
-                text:text,
-                value:value,
-                orderNo:orderNo,
-                typeCode:typeCode,
-            },data=>{
-                if(checked(data)) return;
-
-                //新增成功,跳转到字典值首页面
-                to("settings/dictionary/value/toIndex.do")
-            }
-        )
+function searchActivity() {
+    $("#searchActivityBtn").click(function () {
+        getActivityListPage(1,5);
     })
 }
 ```
 
-* 后台代码
-```java
-@RequestMapping("/value/saveDictionaryValue.do")
-@ResponseBody
-public R saveDictionaryValue(@RequestBody DictionaryValue dictionaryValue){
-    //校验
-    checked(
-            dictionaryValue.getTypeCode(),
-            dictionaryValue.getValue()
-    );
 
-    return ok(
-            //新增之前需要先进行赋值操作,id,可以通过UUID的方式来新增
-            dictionaryService.saveDictionaryValue(
-                    dictionaryValue.setId(IdUtils.getId())
-            ),
-            State.DB_SAVE_ERROR
-    );
+## 加载日历控件
+```javascript
+function initDateTimePicker() {
+    //加载一个日历控件的样式
+    $(".time").datetimepicker({
+        //最小的视图是月份
+        minView: "month",
+        //中文显示
+        language:  'zh-CN',
+        //提交参数的日期格式
+        format: 'yyyy-mm-dd',
+        //是否支持自动关闭
+        autoclose: true,
+        //是否支持今天按钮,点击后可以加载到今天的日期
+        todayBtn: true,
+        //组件显示位置,左下方
+        pickerPosition: "bottom-left"
+    });
 }
 ```
-
-## 字典值模块-作业
-> 业务逻辑请参考,字典类型的修改和删除操作
-> 字典值的删除操作,无需考虑一对多关系,因为我们删除的就是多方数据,可以直接删除
-* 字典值修改操作
-* 字典值的删除操作
-
-
-## 市场活动模块介绍
-> 公司中举办的活动,我们在该模块中全部都能查询得到
-> 市场活动模块和市场活动详情模块及线索和联系人模块都有相应的关联
-
-## 市场活动表关系
-* tbl_activity
-    * id `主键`
-    * owner `外键,用户表`
-    * name `活动名称`
-    * startDate `开始日期`
-    * endDate `结束日期`
-    * cost `成本`
-    * description `描述`
-    * createTime `创建时间`
-    * createBy `创建人`
-    * editTime `修改时间`
-    * editBy `修改人`
-    * isDelete `逻辑删除标记`

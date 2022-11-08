@@ -18,4 +18,9 @@ public class ActivityServiceImpl implements ActivityService {
         int pageNoIndex = (pageNo -1) * pageSize;
         return activityDao.findPage(pageNoIndex,pageSize,name,owner,startDate,endDate);
     }
+
+    @Override
+    public int findPageCount(String name, String owner, String startDate, String endDate) {
+        return activityDao.findPageCount(name,owner,startDate,endDate);
+    }
 }

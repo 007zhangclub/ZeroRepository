@@ -1,5 +1,6 @@
 package com.bjpowernode.crm.workbench.service.impl;
 
+import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.workbench.dao.ActivityDao;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
@@ -32,5 +33,24 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Activity findActivity(String id) {
         return activityDao.findById(id);
+    }
+
+    @Override
+    public boolean updateActivity(Activity activity) {
+        return activityDao.update(activity) > 0;
+    }
+
+    @Override
+    public boolean updateIsDelete(List<Activity> activityList) {
+        //for循环删除
+        activityList.forEach(
+                activity -> {
+                    int count = activityDao.updateIsDelete(activity);
+
+                    if(count<=0)
+                        throw new RuntimeException(State.DB_DELETE_ERROR.getMsg());
+                }
+        );
+        return true;
     }
 }

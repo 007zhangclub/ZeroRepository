@@ -13,4 +13,8 @@ public interface ActivityDao {
     int insert(Activity activity);
 
     Activity findById(String id);
+
+    int update(Activity activity);
+
+    int updateIsDelete(Activity activity);
 }

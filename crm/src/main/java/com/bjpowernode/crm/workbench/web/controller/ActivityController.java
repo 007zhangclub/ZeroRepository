@@ -10,6 +10,7 @@ import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/workbench/activity")
@@ -124,6 +126,44 @@ public class ActivityController extends Workbench {
     public R getActivity(@RequestParam("id")String id){
         return ok(
                 activityService.findActivity(id)
+        );
+    }
+
+
+
+    @RequestMapping("/updateActivity.do")
+    @ResponseBody
+    public R updateActivity(@RequestBody Activity activity){
+        //修改之前,先行赋值
+        activity.setEditTime(getTime())
+                .setEditBy(getName());
+
+        return ok(
+                //修改操作
+                activityService.updateActivity(activity),
+                State.DB_UPDATE_ERROR
+        );
+    }
+
+
+    @RequestMapping("/deleteActivityList.do")
+    @ResponseBody
+    public R deleteActivityList(@RequestParam("ids") List<String> ids){
+        checked(ids);
+
+        //修改isDelete属性为1,代表已删除,同时更新修改人和修改时间
+        //批量更新操作
+        //update tbl_activity set isDelete = 1 where id in (?,?,?)
+        //update tbl_activity set isDelete = 1, editBy = ? , editTime = ? where id in (?,?,?)
+        //通过遍历,将ids转换为activityList
+        List<Activity> activityList = ids.stream()
+                .map(id -> new Activity().setId(id).setIsDelete("1").setEditBy(getName()).setEditTime(getTime()))
+                .collect(Collectors.toList());
+
+        //批量更新
+        return ok(
+                activityService.updateIsDelete(activityList),
+                State.DB_DELETE_ERROR
         );
     }
 }

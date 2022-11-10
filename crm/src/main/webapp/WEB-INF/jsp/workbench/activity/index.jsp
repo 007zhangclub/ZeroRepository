@@ -44,6 +44,12 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//6. 打开市场活动模态窗口操作
 		openEditActivityModal();
+
+		//7. 更新市场活动
+		updateActivity();
+
+		//8. 批量删除市场活动,逻辑删除操作
+		batchDelete();
 	});
 	
 </script>
@@ -170,7 +176,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">更新</button>
+					<button type="button" class="btn btn-primary" id="updateActivityBtn">更新</button>
 				</div>
 			</div>
 		</div>
@@ -264,7 +270,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="openCreateActivityModalBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" id="openEditActivityModalBtn"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-danger" id="batchDeleteBtn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importActivityModal" ><span class="glyphicon glyphicon-import"></span> 上传列表数据（导入）</button>

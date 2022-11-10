@@ -223,3 +223,97 @@ function openEditActivityModal() {
         )
     })
 }
+
+
+
+function updateActivity() {
+    $("#updateActivityBtn").click(function () {
+        let id = $("#edit-id").val();
+        let owner = $("#edit-owner").val();
+        let name = $("#edit-name").val();
+        let startDate = $("#edit-startDate").val();
+        let endDate = $("#edit-endDate").val();
+        let cost = $("#edit-cost").val();
+        let description = $("#edit-description").val();
+
+        if(id == ""){
+            alert("页面加载异常,请刷新后再试");
+            return;
+        }
+
+        if(name == ""){
+            alert("活动名称不能为空");
+            return;
+        }
+
+        if(owner == ""){
+            alert("所有者不能为空");
+            return;
+        }
+
+        //发送post请求修改操作
+        post(
+            "workbench/activity/updateActivity.do",
+            {
+                id:id,
+                owner:owner,
+                name:name,
+                startDate:startDate,
+                endDate:endDate,
+                cost:cost,
+                description:description,
+            },data=>{
+                if(checked(data))
+                    return;
+
+                //修改成功,刷新列表,关闭模态窗口
+                getActivityListPage(1,5);
+
+                $("#editActivityModal").modal("hide");
+            }
+        )
+    })
+}
+
+
+
+function batchDelete() {
+    $("#batchDeleteBtn").click(function () {
+        //获取页面中选中的复选框对象
+        let flags = $("input[name=flag]:checked");
+
+        if(flags.length == 0){
+            alert("请选择需要删除的市场活动数据")
+            return;
+        }
+
+        //console.log(params);
+        //由于删除是一个危险的动作,我们需要给出提示
+        if(confirm("确定删除吗?")){
+            //没有问题,拼接参数发送请求
+            //url?ids=xxx&ids=xxx...
+            let params = "";
+
+            for(let i=0; i<flags.length; i++){
+                //这样拼接最后会多出一个&,但是不影响功能
+                //params += "ids=" + flags[i].value + "&";
+                params += "ids=" + flags[i].value;
+
+                if(i < flags.length - 1) params += "&";
+            }
+
+            //发送get请求
+            get(
+                "workbench/activity/deleteActivityList.do?"+params,
+                {},
+                data=>{
+                    if(checked(data))
+                        return;
+
+                    //删除成功,刷新列表数据
+                    getActivityListPage(1,5);
+                }
+            )
+        }
+    })
+}

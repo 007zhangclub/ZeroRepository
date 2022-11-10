@@ -13,4 +13,8 @@ public interface ActivityService {
     boolean saveActivity(Activity activity);
 
     Activity findActivity(String id);
+
+    boolean updateActivity(Activity activity);
+
+    boolean updateIsDelete(List<Activity> activityList);
 }

@@ -36,6 +36,11 @@ public enum State {
     USER_ACCOUNT_IP_NOT_ALLOW_ERROR(20105,"当前账号IP地址受限,请联系管理人员"),
     USER_NO_AUTHORIZATION(20106,"当前用户未登录"),
 
+    /*
+    市场活动模块
+     */
+    UPLOAD_FILE_ERROR(20201,"文件格式上传异常"),
+    UPLOAD_FILE_SIZE_ERROR(20202,"文件上传不能超过5MB"),
 
     ;
 

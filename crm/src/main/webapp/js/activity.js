@@ -317,3 +317,11 @@ function batchDelete() {
         }
     })
 }
+
+
+function importActivity() {
+    //当点击导入按钮时,我们直接提交表单数据即可
+    $("#importActivityBtn").click(function (){
+        $("#uploadForm").submit();
+    })
+}

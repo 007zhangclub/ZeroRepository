@@ -1,5 +1,6 @@
 package com.bjpowernode.crm.workbench.web.controller;
 
+import com.bjpowernode.crm.constants.ActivityConstants;
 import com.bjpowernode.crm.entity.Page;
 import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
@@ -8,14 +9,18 @@ import com.bjpowernode.crm.utils.IdUtils;
 import com.bjpowernode.crm.workbench.base.Workbench;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -165,5 +170,46 @@ public class ActivityController extends Workbench {
                 activityService.updateIsDelete(activityList),
                 State.DB_DELETE_ERROR
         );
+    }
+
+
+
+    /*
+        批量导入操作 = 文件上传 + 批量新增
+     */
+    @RequestMapping("/uploadActivityFile.do")
+    public String uploadActivityFile(@RequestParam("activityFile")MultipartFile activityFile) throws IOException {
+        //---文件上传---
+        //获取文件名称, aa.xls
+        String originalFilename = activityFile.getOriginalFilename();
+
+        //获取文件后缀名
+        String suffix = originalFilename.substring(
+                originalFilename.lastIndexOf(".") + 1
+        );
+
+        //校验文件上传的是否是Excel文件
+        if(!StringUtils.equalsAny(suffix,"xls","xlsx"))
+            throw new RuntimeException(State.UPLOAD_FILE_ERROR.getMsg());
+
+        //校验文件上传的大小,文件小于5MB
+        long size = activityFile.getSize() / 1000 / 1000;
+        if(size > 5)
+            throw new RuntimeException(State.UPLOAD_FILE_SIZE_ERROR.getMsg());
+
+        //判断上传的路径是否存在,如果不存在,则需要创建
+        if(!new File(ActivityConstants.UPLOAD_URL).exists())
+            new File(ActivityConstants.UPLOAD_URL).mkdirs();
+
+        //文件上传操作
+        activityFile.transferTo(
+                //指定上传的路径及文件名称
+                new File(ActivityConstants.UPLOAD_URL+"Activity-"+getTime()+".xls")
+        );
+        //---文件上传---
+
+        //---批量导入---
+        //---批量导入---
+        return "redirect:/workbench/activity/toIndex.do";
     }
 }

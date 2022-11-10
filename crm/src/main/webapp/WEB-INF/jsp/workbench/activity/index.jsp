@@ -50,6 +50,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//8. 批量删除市场活动,逻辑删除操作
 		batchDelete();
+
+		//9. 批量导入操作
+		importActivity();
 	});
 	
 </script>
@@ -197,7 +200,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
                         请选择要上传的文件：<small style="color: gray;">[仅支持.xls或.xlsx格式]</small>
                     </div>
                     <div style="position: relative;top: 40px; left: 50px;">
-                        <input type="file" id="activityFile">
+						<form id="uploadForm" method="post" enctype="multipart/form-data" action="workbench/activity/uploadActivityFile.do">
+							<input type="file" name="activityFile" id="activityFile">
+						</form>
                     </div>
                     <div style="position: relative; width: 400px; height: 320px; left: 45% ; top: -40px;" >
                         <h3>重要提示</h3>

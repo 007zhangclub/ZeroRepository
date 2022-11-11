@@ -9,6 +9,7 @@ import com.bjpowernode.crm.utils.IdUtils;
 import com.bjpowernode.crm.workbench.base.Workbench;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,12 +17,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
@@ -271,5 +274,94 @@ public class ActivityController extends Workbench {
 
         //---批量导入---
         return "redirect:/workbench/activity/toIndex.do";
+    }
+
+
+
+    /*
+        批量导出操作
+            由于我们的文件需要通过response对象进行相应回浏览器的操作
+            我们这里不需要返回值void
+     */
+    @RequestMapping("/exportActivity.do")
+    public void exportActivity(HttpServletResponse response) throws IOException {
+        //查询数据库的所有未删除的市场活动列表数据
+        List<Activity> activityList = activityService.findActivityList();
+
+        if(CollectionUtils.isEmpty(activityList))
+            //如果查询出的数据为空,那么也无需下载了
+            return;
+
+        //遍历数据,封装到Workbook对象中
+        Workbook workbook  = new HSSFWorkbook();
+
+        //基于工作簿对象,创建页码对象
+        Sheet sheet = workbook.createSheet("市场活动列表");
+
+        //基于页码对象,创建行对象,第一行是表头数据
+        Row r0 = sheet.createRow(0);
+
+        /*
+        id
+        owner
+        name
+        startDate
+        endDate
+        cost
+        description
+        createTime
+        createBy
+        editTime
+        editBy
+        isDelete
+        username
+         */
+        r0.createCell(0).setCellValue("唯一标识");
+        r0.createCell(1).setCellValue("用户标识");
+        r0.createCell(2).setCellValue("用户名称");
+        r0.createCell(3).setCellValue("活动名称");
+        r0.createCell(4).setCellValue("开始时间");
+        r0.createCell(5).setCellValue("结束时间");
+        r0.createCell(6).setCellValue("成本");
+        r0.createCell(7).setCellValue("描述");
+        r0.createCell(8).setCellValue("创建时间");
+        r0.createCell(9).setCellValue("创建人");
+        r0.createCell(10).setCellValue("修改时间");
+        r0.createCell(11).setCellValue("修改人");
+        r0.createCell(12).setCellValue("状态");
+
+        //遍历集合数据,封装数据到行和单元格对象中
+        for (int i = 0; i < activityList.size(); i++) {
+            Activity activity = activityList.get(i);
+
+            //创建每一行的对象,封装单元格数据
+            Row row = sheet.createRow(i + 1);
+
+            row.createCell(0).setCellValue(activity.getId());
+            row.createCell(1).setCellValue(activity.getOwner());
+            row.createCell(2).setCellValue(activity.getUsername());
+            row.createCell(3).setCellValue(activity.getName());
+            row.createCell(4).setCellValue(activity.getStartDate());
+            row.createCell(5).setCellValue(activity.getEndDate());
+            row.createCell(6).setCellValue(activity.getCost());
+            row.createCell(7).setCellValue(activity.getDescription());
+            row.createCell(8).setCellValue(activity.getCreateTime());
+            row.createCell(9).setCellValue(activity.getCreateBy());
+            row.createCell(10).setCellValue(activity.getEditTime());
+            row.createCell(11).setCellValue(activity.getEditBy());
+            row.createCell(12).setCellValue(activity.getIsDelete().equals("0")?"正常":"");
+        }
+
+        //设置下载的文件名称
+        response.addHeader(
+                FileUploadBase.CONTENT_DISPOSITION,
+                FileUploadBase.ATTACHMENT+";filename=Activity-"+getTime()+".xls"
+        );
+
+        //下载操作
+        workbook.write(
+                //通过response对象,获取输出流对象
+                response.getOutputStream()
+        );
     }
 }

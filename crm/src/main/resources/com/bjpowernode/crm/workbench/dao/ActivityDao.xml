@@ -150,4 +150,7 @@
                  left join tbl_user u on a.owner = u.id
         where a.id = #{id}
     </select>
+    <select id="findAll" resultType="com.bjpowernode.crm.workbench.domain.Activity">
+        select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id where a.isDelete = '0'
+    </select>
 </mapper>

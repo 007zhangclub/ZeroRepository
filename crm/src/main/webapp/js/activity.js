@@ -325,3 +325,13 @@ function importActivity() {
         $("#uploadForm").submit();
     })
 }
+
+
+function exportActivityAll() {
+    $("#exportActivityAllBtn").click(function () {
+        //需要给出一个提示操作,以免用户误操作,直接下了文件
+        if(confirm("确定要导出全部数据吗?"))
+            //这里不需要异步发送请求了,因为我们要通过response对象来响应下载的文件
+            to("workbench/activity/exportActivity.do");
+    })
+}

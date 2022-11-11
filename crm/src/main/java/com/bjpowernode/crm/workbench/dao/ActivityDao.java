@@ -19,4 +19,6 @@ public interface ActivityDao {
     int updateIsDelete(Activity activity);
 
     int insertList(List<Activity> activityList);
+
+    List<Activity> findAll();
 }

@@ -53,6 +53,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//9. 批量导入操作
 		importActivity();
+
+		//10. 批量导出操作
+		exportActivityAll();
 	});
 	
 </script>

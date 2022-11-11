@@ -20,5 +20,5 @@ public interface ActivityDao {
 
     int insertList(List<Activity> activityList);
 
-    List<Activity> findAll();
+    List<Activity> findAll(@Param("ids") List<String> ids);
 }

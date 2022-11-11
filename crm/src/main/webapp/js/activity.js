@@ -28,7 +28,7 @@ function getActivityListPage(pageNo, pageSize) {
                 (i,n) => {
                     return  '<tr class="active">'+
                             '<td><input type="checkbox" name="flag" value="'+n.id+'"/></td>'+
-                            '<td><a style="text-decoration: none; cursor: pointer;" onClick="window.location.href=\'detail.html\';">'+n.name+'</a></td>'+
+                            '<td><a style="text-decoration: none; cursor: pointer;" onClick="window.location.href=\'workbench/activity/toDetail.do?id='+n.id+'\';">'+n.name+'</a></td>'+
                             '<td>'+n.username+'</td>'+
                             '<td>'+n.startDate+'</td>'+
                             '<td>'+n.endDate+'</td>'+
@@ -333,5 +333,101 @@ function exportActivityAll() {
         if(confirm("确定要导出全部数据吗?"))
             //这里不需要异步发送请求了,因为我们要通过response对象来响应下载的文件
             to("workbench/activity/exportActivity.do");
+    })
+}
+
+
+function exportActivityXz() {
+    $("#exportActivityXzBtn").click(function () {
+        //获取选中的市场活动标签对象
+        let flags = $("input[name=flag]:checked");
+
+        if(flags.length == 0){
+            alert("请选择要导出的数据")
+            return;
+        }
+
+        //给出提示信息
+        if(confirm("确定要导出这些数据吗?")){
+            //获取标签对象中的市场活动ids
+            let params = "";
+
+            for(let i=0; i<flags.length; i++){
+                params += "ids="+flags[i].value;
+
+                if (i < flags.length - 1) params += "&";
+            }
+
+            //发送请求
+            to("workbench/activity/exportActivity.do?"+params);
+        }
+    })
+}
+
+
+
+function getActivityRemarkList() {
+    get(
+        "workbench/activity/getActivityRemarkList.do",
+        {activityId:$("#activityId").val()},
+        data=>{
+            if(checked(data))
+                return;
+            //异步加载
+            load(
+                $("#activityRemarkListBody"),
+                data,
+                (i,n) => {
+                    return  '<div class="remarkDiv" style="height: 60px;">'+
+                            '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">'+
+                            '<div style="position: relative; top: -40px; left: 40px;">'+
+                            '<h5>'+n.noteContent+'</h5>'+
+                            '<font color="gray">市场活动</font> <font color="gray">-</font> <b>'+$("#activityName").val()+'</b> <small style="color: gray;">'+(n.editFlag==0?n.createTime:n.editTime)+' 由 '+(n.editFlag==0?n.createBy:n.editBy)+'</small>'+
+                            '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">'+
+                            '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
+                            '&nbsp;&nbsp;&nbsp;&nbsp;'+
+                            '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
+                            '</div>'+
+                            '</div>'+
+                            '</div>';
+                }
+            )
+        }
+    )
+}
+
+
+function resetEvent() {
+    // $(".remarkDiv").mouseover(function(){
+    //     $(this).children("div").children("div").show();
+    // });
+
+    $("#activityRemarkListBody").on("mouseover",".remarkDiv",function () {
+        $(this).children("div").children("div").show();
+    })
+
+    // $(".remarkDiv").mouseout(function(){
+    //     $(this).children("div").children("div").hide();
+    // });
+
+    $("#activityRemarkListBody").on("mouseout",".remarkDiv",function () {
+        $(this).children("div").children("div").hide();
+    })
+
+    // $(".myHref").mouseover(function(){
+    //     $(this).children("span").css("color","red");
+    // });
+
+    $("#activityRemarkListBody").on("mouseover",".myHref",function () {
+        //$(this).children("span").css("color","red");
+        $(this).children("span").css("color","#FF0000");
+    })
+
+    // $(".myHref").mouseout(function(){
+    //     $(this).children("span").css("color","#E6E6E6");
+    // });
+
+    $("#activityRemarkListBody").on("mouseout",".myHref",function () {
+        $(this).children("span").css("color","#E6E6E6")
     })
 }

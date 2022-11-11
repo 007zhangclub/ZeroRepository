@@ -33,7 +33,8 @@
     </sql>
 
     <sql id="listValues">
-        #{a.id},
+        #{a.id}
+        ,
         #{a.owner},
         #{a.name},
         #{a.startDate},
@@ -62,11 +63,11 @@
         <include refid="star"/>
         )
         values
-               <foreach collection="list" separator="," item="a">
-                   (
-                   <include refid="listValues"/>
-                   )
-               </foreach>
+        <foreach collection="list" separator="," item="a">
+            (
+            <include refid="listValues"/>
+            )
+        </foreach>
     </insert>
     <update id="update">
         update tbl_activity
@@ -96,10 +97,14 @@
                 editTime = #{editTime} ,
             </if>
         </set>
-            where id = #{id}
+        where id = #{id}
     </update>
     <update id="updateIsDelete">
-        update tbl_activity set isDelete = #{isDelete}, editTime = #{editTime}, editBy = #{editBy} where id = #{id}
+        update tbl_activity
+        set isDelete = #{isDelete},
+            editTime = #{editTime},
+            editBy   = #{editBy}
+        where id = #{id}
     </update>
     <select id="findPage" resultType="com.bjpowernode.crm.workbench.domain.Activity">
         select a.*,u.name username from tbl_activity a left join tbl_user u on a.owner = u.id
@@ -151,6 +156,13 @@
         where a.id = #{id}
     </select>
     <select id="findAll" resultType="com.bjpowernode.crm.workbench.domain.Activity">
-        select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id where a.isDelete = '0'
+        select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id
+        where a.isDelete = '0'
+        <if test="ids != null">
+            and a.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
     </select>
 </mapper>

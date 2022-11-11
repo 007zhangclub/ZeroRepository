@@ -165,9 +165,10 @@ function exportActivityAll() {
         我们这里不需要返回值void
  */
 @RequestMapping("/exportActivity.do")
-public void exportActivity(HttpServletResponse response) throws IOException {
+public void exportActivity(@RequestParam(value = "ids",required = false)List<String> ids,
+                           HttpServletResponse response) throws IOException {
     //查询数据库的所有未删除的市场活动列表数据
-    List<Activity> activityList = activityService.findActivityList();
+    List<Activity> activityList = activityService.findActivityList(ids);
 
     if(CollectionUtils.isEmpty(activityList))
         //如果查询出的数据为空,那么也无需下载了
@@ -250,6 +251,121 @@ public void exportActivity(HttpServletResponse response) throws IOException {
 * Sql
 ```xml
 <select id="findAll" resultType="com.bjpowernode.crm.workbench.domain.Activity">
-    select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id where a.isDelete = '0'
+    select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id 
+    a.isDelete = '0'
+    <if test="ids != null">
+        and a.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </if>
 </select>
+```
+
+## 选择导出
+* 前端代码
+```javascript
+function exportActivityXz() {
+    $("#exportActivityXzBtn").click(function () {
+        //获取选中的市场活动标签对象
+        let flags = $("input[name=flag]:checked");
+
+        if(flags.length == 0){
+            alert("请选择要导出的数据")
+            return;
+        }
+
+        //给出提示信息
+        if(confirm("确定要导出这些数据吗?")){
+            //获取标签对象中的市场活动ids
+            let params = "";
+
+            for(let i=0; i<flags.length; i++){
+                params += "ids="+flags[i].value;
+
+                if (i < flags.length - 1) params += "&";
+            }
+
+            //发送请求
+            to("workbench/activity/exportActivity.do?"+params);
+        }
+    })
+}
+```
+
+
+## 市场活动备注信息表介绍
+> 备注信息表,在市场活动,线索,交易,联系人,客户等等表中都有,只不过我们记录的备注信息是不同的
+* tbl_activity_remark `多方`
+    * id
+    * noteContent `备注信息`
+    * createTime
+    * createBy
+    * editTime
+    * editBy
+    * editFlag `修改标记,0代表未修改,1代表已修改`
+    * activityId
+
+## 加载详情页面列表数据
+* 前端代码
+> 异步加载
+```javascript
+'<td><a style="text-decoration: none; cursor: pointer;" onClick="window.location.href=\'workbench/activity/toDetail.do?id='+n.id+'\';">'+n.name+'</a></td>'+
+```
+
+* 后台代码
+```java
+@RequestMapping("/getActivityRemarkList.do")
+@ResponseBody
+public R getActivityRemarkList(@RequestParam("activityId") String activityId){
+    //查询当前市场活动id相关联的列表数据
+    List<ActivityRemark> activityRemarkList = activityService.findActivityRemarkList(activityId);
+
+    return ok(activityRemarkList);
+}
+```
+
+* Sql
+```java
+@Select("select * from tbl_activity_remark where activityId = #{activityId}")
+List<ActivityRemark> findList(String activityId);
+```
+
+## 恢复详情页面中的事件
+* 前端代码
+```javascript
+function resetEvent() {
+    // $(".remarkDiv").mouseover(function(){
+    //     $(this).children("div").children("div").show();
+    // });
+
+    $("#activityRemarkListBody").on("mouseover",".remarkDiv",function () {
+        $(this).children("div").children("div").show();
+    })
+
+    // $(".remarkDiv").mouseout(function(){
+    //     $(this).children("div").children("div").hide();
+    // });
+
+    $("#activityRemarkListBody").on("mouseout",".remarkDiv",function () {
+        $(this).children("div").children("div").hide();
+    })
+
+    // $(".myHref").mouseover(function(){
+    //     $(this).children("span").css("color","red");
+    // });
+
+    $("#activityRemarkListBody").on("mouseover",".myHref",function () {
+        //$(this).children("span").css("color","red");
+        $(this).children("span").css("color","#FF0000");
+    })
+
+    // $(".myHref").mouseout(function(){
+    //     $(this).children("span").css("color","#E6E6E6");
+    // });
+
+    $("#activityRemarkListBody").on("mouseout",".myHref",function () {
+        $(this).children("span").css("color","#E6E6E6")
+    })
+}
 ```

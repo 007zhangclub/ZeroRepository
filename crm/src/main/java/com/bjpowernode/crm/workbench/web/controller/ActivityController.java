@@ -8,8 +8,10 @@ import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.utils.IdUtils;
 import com.bjpowernode.crm.workbench.base.Workbench;
 import com.bjpowernode.crm.workbench.domain.Activity;
+import com.bjpowernode.crm.workbench.domain.ActivityRemark;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -284,9 +287,10 @@ public class ActivityController extends Workbench {
             我们这里不需要返回值void
      */
     @RequestMapping("/exportActivity.do")
-    public void exportActivity(HttpServletResponse response) throws IOException {
+    public void exportActivity(@RequestParam(value = "ids",required = false)List<String> ids,
+                               HttpServletResponse response) throws IOException {
         //查询数据库的所有未删除的市场活动列表数据
-        List<Activity> activityList = activityService.findActivityList();
+        List<Activity> activityList = activityService.findActivityList(ids);
 
         if(CollectionUtils.isEmpty(activityList))
             //如果查询出的数据为空,那么也无需下载了
@@ -363,5 +367,27 @@ public class ActivityController extends Workbench {
                 //通过response对象,获取输出流对象
                 response.getOutputStream()
         );
+    }
+
+
+    @RequestMapping("/toDetail.do")
+    public String toDetail(@RequestParam("id") String id, Model model){
+        //查询市场活动数据
+        Activity activity = activityService.findActivity(id);
+
+        if(ObjectUtils.isNotEmpty(activity))
+            model.addAttribute("activity",activity);
+
+        return "/workbench/activity/detail";
+    }
+
+
+    @RequestMapping("/getActivityRemarkList.do")
+    @ResponseBody
+    public R getActivityRemarkList(@RequestParam("activityId") String activityId){
+        //查询当前市场活动id相关联的列表数据
+        List<ActivityRemark> activityRemarkList = activityService.findActivityRemarkList(activityId);
+
+        return ok(activityRemarkList);
     }
 }

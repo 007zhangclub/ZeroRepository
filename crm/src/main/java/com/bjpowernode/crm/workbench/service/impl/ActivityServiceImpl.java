@@ -2,7 +2,9 @@ package com.bjpowernode.crm.workbench.service.impl;
 
 import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.workbench.dao.ActivityDao;
+import com.bjpowernode.crm.workbench.dao.ActivityRemarkDao;
 import com.bjpowernode.crm.workbench.domain.Activity;
+import com.bjpowernode.crm.workbench.domain.ActivityRemark;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ import java.util.List;
 public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private ActivityDao activityDao;
+
+    @Autowired
+    private ActivityRemarkDao activityRemarkDao;
 
     @Override
     public List<Activity> findPage(Integer pageNo, Integer pageSize, String name, String owner, String startDate, String endDate) {
@@ -60,7 +65,12 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public List<Activity> findActivityList() {
-        return activityDao.findAll();
+    public List<Activity> findActivityList(List<String> ids) {
+        return activityDao.findAll(ids);
+    }
+
+    @Override
+    public List<ActivityRemark> findActivityRemarkList(String activityId) {
+        return activityRemarkDao.findList(activityId);
     }
 }

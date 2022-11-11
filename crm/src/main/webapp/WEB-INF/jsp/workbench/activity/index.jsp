@@ -56,6 +56,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//10. 批量导出操作
 		exportActivityAll();
+
+		//11. 选择导出操作
+		exportActivityXz();
 	});
 	
 </script>

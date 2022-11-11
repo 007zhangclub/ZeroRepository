@@ -1,7 +1,7 @@
 package com.bjpowernode.crm.workbench.service;
 
-import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.workbench.domain.Activity;
+import com.bjpowernode.crm.workbench.domain.ActivityRemark;
 
 import java.util.List;
 
@@ -20,5 +20,7 @@ public interface ActivityService {
 
     boolean saveActivityList(List<Activity> activityList);
 
-    List<Activity> findActivityList();
+    List<Activity> findActivityList(List<String> ids);
+
+    List<ActivityRemark> findActivityRemarkList(String activityId);
 }

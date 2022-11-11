@@ -31,6 +31,21 @@
         #{editBy},
         #{isDelete}
     </sql>
+
+    <sql id="listValues">
+        #{a.id},
+        #{a.owner},
+        #{a.name},
+        #{a.startDate},
+        #{a.endDate},
+        #{a.cost},
+        #{a.description},
+        #{a.createTime},
+        #{a.createBy},
+        #{a.editTime},
+        #{a.editBy},
+        #{a.isDelete}
+    </sql>
     <insert id="insert">
         insert into tbl_activity
         (
@@ -40,6 +55,18 @@
         (
         <include refid="starValues"/>
         )
+    </insert>
+    <insert id="insertList">
+        insert into tbl_activity
+        (
+        <include refid="star"/>
+        )
+        values
+               <foreach collection="list" separator="," item="a">
+                   (
+                   <include refid="listValues"/>
+                   )
+               </foreach>
     </insert>
     <update id="update">
         update tbl_activity

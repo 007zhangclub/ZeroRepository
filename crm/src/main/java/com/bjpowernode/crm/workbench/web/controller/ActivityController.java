@@ -10,6 +10,10 @@ import com.bjpowernode.crm.workbench.base.Workbench;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -201,14 +208,67 @@ public class ActivityController extends Workbench {
         if(!new File(ActivityConstants.UPLOAD_URL).exists())
             new File(ActivityConstants.UPLOAD_URL).mkdirs();
 
+        String url = ActivityConstants.UPLOAD_URL+"Activity-"+getTime()+".xls";
         //文件上传操作
         activityFile.transferTo(
                 //指定上传的路径及文件名称
-                new File(ActivityConstants.UPLOAD_URL+"Activity-"+getTime()+".xls")
+                new File(url)
         );
         //---文件上传---
 
+        List<Activity> activityList = new ArrayList<>();
+
         //---批量导入---
+        //将Excel文件加载成输入流对象
+        InputStream in = new FileInputStream(url);
+
+        //基于输入流对象,创建工作簿对象
+        Workbook workbook = new HSSFWorkbook(in);
+
+        //通过工作簿对象,获取页码对象
+        Sheet sheet = workbook.getSheetAt(0);
+
+        //通过页码对象,获取最后的行号
+        int lastRowNum = sheet.getLastRowNum();
+
+        //遍历每一行的数据,必须要跳过第一行,因为第一行是表头数据
+        for(int i=0; i<lastRowNum; i++){
+            //根据页码对象,获取每一行的对象
+            Row row = sheet.getRow(i + 1);
+
+            //获取行中单元格的数据
+            String activityName = row.getCell(0).getStringCellValue();
+            String startDate = row.getCell(1).getStringCellValue();
+            String endDate = row.getCell(2).getStringCellValue();
+            String cost = row.getCell(3).getStringCellValue();
+            String description = row.getCell(4).getStringCellValue();
+
+            //封装到集合中
+            activityList.add(
+                    //封装市场活动对象
+                    Activity.builder()
+                            .id(IdUtils.getId())
+                            .owner(getOwner())
+                            .name(activityName)
+                            .startDate(startDate)
+                            .endDate(endDate)
+                            .cost(cost)
+                            .description(description)
+                            .createTime(getTime())
+                            .createBy(getName())
+                            .editTime(getTime())
+                            .editBy(getName())
+                            .isDelete("0")
+                            .build()
+            );
+        }
+
+        //完成批量导入的操作
+        boolean flag = activityService.saveActivityList(activityList);
+
+        if(!flag)
+            throw new RuntimeException(State.DB_SAVE_ERROR.getMsg());
+
         //---批量导入---
         return "redirect:/workbench/activity/toIndex.do";
     }

@@ -53,4 +53,9 @@ public class ActivityServiceImpl implements ActivityService {
         );
         return true;
     }
+
+    @Override
+    public boolean saveActivityList(List<Activity> activityList) {
+        return activityDao.insertList(activityList) > 0;
+    }
 }

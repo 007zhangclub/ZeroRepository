@@ -17,4 +17,6 @@ public interface ActivityService {
     boolean updateActivity(Activity activity);
 
     boolean updateIsDelete(List<Activity> activityList);
+
+    boolean saveActivityList(List<Activity> activityList);
 }

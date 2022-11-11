@@ -17,4 +17,6 @@ public interface ActivityDao {
     int update(Activity activity);
 
     int updateIsDelete(Activity activity);
+
+    int insertList(List<Activity> activityList);
 }

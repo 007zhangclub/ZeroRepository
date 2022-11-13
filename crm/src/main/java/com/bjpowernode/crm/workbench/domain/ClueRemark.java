@@ -13,27 +13,13 @@ import lombok.experimental.Accessors;
 @Builder
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Clue {
+public class ClueRemark {
     private String id;
-    private String fullname;
-    private String appellation;
-    private String owner;
-    private String company;
-    private String job;
-    private String email;
-    private String phone;
-    private String website;
-    private String mphone;
-    private String state;
-    private String source;
+    private String noteContent;
     private String createBy;
     private String createTime;
     private String editBy;
     private String editTime;
-    private String description;
-    private String contactSummary;
-    private String nextContactTime;
-    private String address;
-
-    private String username;
+    private String editFlag;
+    private String clueId;
 }

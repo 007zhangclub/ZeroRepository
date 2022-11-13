@@ -113,3 +113,75 @@ function saveClue() {
         )
     })
 }
+
+
+function getClueRemarkList() {
+    //发送请求获取列表数据,根据clueId来获取
+    let clueId = $("#hidden-clueId").val();
+    
+    if(clueId == ""){
+        alert("页面加载异常,请刷新后再试")
+        return;
+    }
+    
+    get(
+        "workbench/clue/getClueRemarkList.do",
+        {
+            clueId:clueId
+        },data=>{
+            if(checked(data))
+                return;
+            //异步加载
+            load(
+                $("#clueRemarkListBody"),
+                data,
+                (i,n) => {
+                    return  '<div class="remarkDiv" style="height: 60px;">'+
+                            '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">'+
+                            '<div style="position: relative; top: -40px; left: 40px;">'+
+                            '<h5>'+n.noteContent+'</h5>'+
+                            '<font color="gray">线索</font> <font color="gray">-</font> <b>'+($("#hidden-fullname").val()+$("#hidden-appellation").val()+$("#hidden-compney").val())+'李四先生-动力节点</b> <small style="color: gray;"> '+(n.editFlag==0?n.createTime:n.editTime)+' 由 '+(n.editFlag==0?n.createBy:n.editBy)+'</small>'+
+                            '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">'+
+                            '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
+                            '&nbsp;&nbsp;&nbsp;&nbsp;'+
+                            '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
+                            '</div>'+
+                            '</div>'+
+                            '</div>';
+                }
+            )
+        }
+    )
+}
+
+
+function saveClueRemark() {
+    $("#saveClueRemarkBtn").click(function () {
+        //获取备注信息
+        let noteContent = $("#remark").val();
+
+        if(noteContent == ""){
+            alert("备注信息不能为空");
+            return;
+        }
+
+        //新增操作,携带clueId参数
+        let clueId = $("#hidden-clueId").val();
+
+        //发送post请求
+        post(
+            "workbench/clue/remark/saveClueRemark.do",
+            {
+                noteContent:noteContent,
+                clueId:clueId
+            },data=>{
+                if(checked(data))
+                    return;
+                //异步加载,刷新列表数据
+                getClueRemarkList();
+
+                $("#remark").val("");
+            }
+        )
+    })
+}

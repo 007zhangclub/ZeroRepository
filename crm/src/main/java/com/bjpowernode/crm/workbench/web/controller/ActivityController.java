@@ -390,4 +390,37 @@ public class ActivityController extends Workbench {
 
         return ok(activityRemarkList);
     }
+
+
+    @RequestMapping("/remark/saveActivityRemark.do")
+    @ResponseBody
+    public R saveActivityRemark(@RequestBody ActivityRemark activityRemark){
+        //赋值操作
+        activityRemark.setId(IdUtils.getId())
+                .setEditFlag("0")
+                .setCreateTime(getTime())
+                .setCreateBy(getName())
+                .setEditTime(getTime())
+                .setEditBy(getName());
+
+        //新增操作
+        boolean flag = activityService.saveActivityRemark(activityRemark);
+
+        return ok(flag,State.DB_SAVE_ERROR);
+    }
+
+
+    @RequestMapping("/remark/updateActivityRemark.do")
+    @ResponseBody
+    public R updateActivityRemark(@RequestBody ActivityRemark activityRemark){
+        //赋值操作
+        activityRemark.setEditFlag("1")
+                .setEditBy(getName())
+                .setEditTime(getTime());
+
+        //修改操作
+        boolean flag = activityService.updateActivityRemark(activityRemark);
+
+        return ok(flag,State.DB_UPDATE_ERROR);
+    }
 }

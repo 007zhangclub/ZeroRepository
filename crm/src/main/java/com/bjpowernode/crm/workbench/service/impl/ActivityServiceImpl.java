@@ -73,4 +73,14 @@ public class ActivityServiceImpl implements ActivityService {
     public List<ActivityRemark> findActivityRemarkList(String activityId) {
         return activityRemarkDao.findList(activityId);
     }
+
+    @Override
+    public boolean saveActivityRemark(ActivityRemark activityRemark) {
+        return activityRemarkDao.insert(activityRemark) > 0;
+    }
+
+    @Override
+    public boolean updateActivityRemark(ActivityRemark activityRemark) {
+        return activityRemarkDao.update(activityRemark) > 0;
+    }
 }

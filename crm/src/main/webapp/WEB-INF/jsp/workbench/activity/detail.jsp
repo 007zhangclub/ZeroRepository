@@ -44,6 +44,12 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//2. 恢复页面中的事件
 		resetEvent();
+
+		//3. 新增市场活动备注信息
+		saveActivityRemark();
+
+		//4. 修改市场活动备注信息
+		updateActivityRemark();
 	});
 	
 </script>
@@ -52,6 +58,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 <body>
 
 	<input type="hidden" id="activityId" value="${activity.id}">
+	<input type="hidden" id="edit-remarkId">
 	<input type="hidden" id="activityName" value="${activity.name}">
 
 	<!-- 修改市场活动备注的模态窗口 -->
@@ -162,7 +169,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				<textarea id="remark" class="form-control" style="width: 850px; resize : none;" rows="2"  placeholder="添加备注..."></textarea>
 				<p id="cancelAndSaveBtn" style="position: relative;left: 737px; top: 10px; display: none;">
 					<button id="cancelBtn" type="button" class="btn btn-default">取消</button>
-					<button type="button" class="btn btn-primary">保存</button>
+					<button id="saveActivityRemarkBtn" type="button" class="btn btn-primary">保存</button>
 				</p>
 			</form>
 		</div>

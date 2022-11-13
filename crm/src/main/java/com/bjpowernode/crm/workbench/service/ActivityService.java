@@ -23,4 +23,8 @@ public interface ActivityService {
     List<Activity> findActivityList(List<String> ids);
 
     List<ActivityRemark> findActivityRemarkList(String activityId);
+
+    boolean saveActivityRemark(ActivityRemark activityRemark);
+
+    boolean updateActivityRemark(ActivityRemark activityRemark);
 }

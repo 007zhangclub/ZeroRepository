@@ -381,10 +381,10 @@ function getActivityRemarkList() {
                     return  '<div class="remarkDiv" style="height: 60px;">'+
                             '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">'+
                             '<div style="position: relative; top: -40px; left: 40px;">'+
-                            '<h5>'+n.noteContent+'</h5>'+
+                            '<h5 id="n_'+n.id+'">'+n.noteContent+'</h5>'+
                             '<font color="gray">市场活动</font> <font color="gray">-</font> <b>'+$("#activityName").val()+'</b> <small style="color: gray;">'+(n.editFlag==0?n.createTime:n.editTime)+' 由 '+(n.editFlag==0?n.createBy:n.editBy)+'</small>'+
                             '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">'+
-                            '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
+                            '<a onclick="openEditRemarkModal(\''+n.id+'\',\''+n.noteContent+'\')" class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
                             '&nbsp;&nbsp;&nbsp;&nbsp;'+
                             '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
                             '</div>'+
@@ -429,5 +429,98 @@ function resetEvent() {
 
     $("#activityRemarkListBody").on("mouseout",".myHref",function () {
         $(this).children("span").css("color","#E6E6E6")
+    })
+}
+
+
+function saveActivityRemark() {
+    $("#saveActivityRemarkBtn").click(function () {
+        //获取文本域中的内容
+        let noteContent = $("#remark").val();
+
+        if(noteContent == ""){
+            alert("备注信息不能为空");
+            return;
+        }
+
+        //新增的是多方的数据,必须携带市场活动的id
+        let activityId = $("#activityId").val();
+
+        post(
+            "workbench/activity/remark/saveActivityRemark.do",
+            {
+                activityId:activityId,
+                noteContent:noteContent
+            },data=>{
+                if(checked(data))
+                    return;
+
+                //刷新列表数据
+                getActivityRemarkList();
+
+                //清空文本域中的备注信息内容
+                $("#remark").val("");
+            }
+        )
+
+    })
+}
+
+/*
+    由于当前的页面的模态窗口中,只有一个文本域,数据较少,我们可以从页面中获取,然后回显
+
+    在js异步加载时,我们传递的参数必须由4个单引号进行嵌套
+        首位两个单引号进行转义即可
+ */
+function openEditRemarkModal(id, noteContent) {
+    //将备注信息的id,存入到隐藏域中,为后续的修改操作做铺垫
+    $("#edit-remarkId").val(id);
+
+    //在模态窗口中显示备注信息
+    $("#noteContent").val(noteContent);
+
+    //打开模态窗口
+    $("#editRemarkModal").modal("show");
+}
+
+
+function updateActivityRemark() {
+    $("#updateRemarkBtn").click(function () {
+        //获取隐藏域中的id
+        let remarkId = $("#edit-remarkId").val();
+
+        //获取文本域中的内容
+        let noteContent = $("#noteContent").val();
+
+        if(noteContent == ""){
+            alert("备注信息不能为空")
+            return;
+        }
+
+        //获取页面中的备注信息
+        let oldContent = $("#n_"+remarkId).html();
+
+        if(noteContent == oldContent){
+            alert("修改信息不能与原数据一致")
+            return;
+        }
+
+        //发送post请求修改操作
+        post(
+            "workbench/activity/remark/updateActivityRemark.do",
+            {
+                id:remarkId,
+                noteContent:noteContent
+            },data=>{
+                if(checked(data))
+                    return;
+
+                //刷新列表数据
+                getActivityRemarkList()
+
+                //关闭模态窗口
+                $("#editRemarkModal").modal("hide");
+            }
+        )
     })
 }

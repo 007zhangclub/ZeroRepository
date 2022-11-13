@@ -1,6 +1,7 @@
 package com.bjpowernode.crm.workbench.dao;
 
 import com.bjpowernode.crm.workbench.domain.ActivityRemark;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -12,4 +13,7 @@ public interface ActivityRemarkDao {
     int insert(ActivityRemark activityRemark);
 
     int update(ActivityRemark activityRemark);
+
+    @Delete("delete from tbl_activity_remark where id = #{remarkId}")
+    int delete(String remarkId);
 }

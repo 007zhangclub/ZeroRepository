@@ -423,4 +423,14 @@ public class ActivityController extends Workbench {
 
         return ok(flag,State.DB_UPDATE_ERROR);
     }
+
+
+    @RequestMapping("/remark/deleteActivityRemark.do")
+    @ResponseBody
+    public R deleteActivityRemark(@RequestParam("remarkId") String remarkId){
+        return ok(
+                activityService.deleteActivityRemark(remarkId),
+                State.DB_DELETE_ERROR
+        );
+    }
 }

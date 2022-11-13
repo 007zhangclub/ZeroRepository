@@ -137,3 +137,160 @@ public R updateActivityRemark(@RequestBody ActivityRemark activityRemark){
 ```
 
 ## 删除市场活动备注信息
+* 前端代码
+```javascript
+function deleteActivityRemark(remarkId) {
+    //删除是一个危险的动作,需要给出提示信息
+    if(confirm("确定要删除吗?"))
+        get(
+            "workbench/activity/remark/deleteActivityRemark.do",
+            {remarkId:remarkId},
+            data=>{
+                if(checked(data))
+                    return;
+                //删除成功后,刷新列表页面
+                getActivityRemarkList();
+            }
+        )
+}
+```
+
+* 后台代码
+```java
+@RequestMapping("/remark/deleteActivityRemark.do")
+@ResponseBody
+public R deleteActivityRemark(@RequestParam("remarkId") String remarkId){
+    return ok(
+            activityService.deleteActivityRemark(remarkId),
+            State.DB_DELETE_ERROR
+    );
+}
+```
+
+
+## 缓存介绍
+> 缓存是将数据存入到内存中,我们在加载时,无需通过数据库(磁盘)进行序列化和反序列化的过程,性能和效率提升了非常多
+> 加载数据的顺序: CPU缓存 -> 内存 -> 磁盘 -> 云盘
+* 什么数据适合存储到缓存中呢?
+    * 早期的时候,由于服务器的性能没有那么高,我们会将一些几乎不怎么变化的数据,存入到缓存中
+    * 现在的时候,我们的计算机或者服务器的性能已经有了很显著的提升,我们就无需担心这些数据了
+* 现在我们还没有学习到一些第三方的缓存技术,我们通过服务器缓存来实现
+    * 将数据存储到ServletContext域对象中,这样我们全局都可以获取到该数据了
+    * 获取缓存数据时,就是通过el表达式来进行加载
+## Crm中缓存中存储的数据
+* 将数据字典类型(一方)和数据字典值(多方)的内容存入到缓存中
+    * 因为页面中我们的下拉框会加载这些较固定的数据
+* `[{code:valueList}...]` 将查询出的集合数据,遍历存入到服务器缓存中 `{code:valueList}`
+
+## 加载数据到服务器缓存中
+* web.xml
+```xml
+<listener>
+    <listener-class>com.bjpowernode.crm.listener.LoadCacheDataListener</listener-class>
+</listener>
+```
+
+* 监听器
+```java
+/*
+    让当前的类实现ServletContextListener接口
+        重写两个方法
+            初始化方法 -> 服务器在运行时,我们的listener即被调用,向ServletContext中存入数据
+                        当服务器启动完成时,我们的数据已经被加载到ServletContext域对象中
+            结束时方法
+ */
+@Slf4j
+public class LoadCacheDataListener implements ServletContextListener {
+
+    //@Autowired
+    //private DictionaryService dictionaryService;
+
+    /*
+    服务器初始化运行的回调方法
+     */
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("加载缓存数据...");
+
+        //将容器中的DictionaryService对象获取到
+        //如果通过自动注入的方式,是获取不到的,因为服务器在刚开始运行的时候,我们的容器并没有加载完成
+        //所以此时获取到的业务层对象是空
+        //我们要通过手动加载容器的方式来后去业务层对象
+        ApplicationContext app = new ClassPathXmlApplicationContext("spring/applicationContext-service.xml");
+
+        //从容器中获取service对象
+        DictionaryService dictionaryService = app.getBean(DictionaryService.class);
+
+        //获取缓存的数据
+        // [
+        //  {code:[{DictionaryValue}...]},
+        //  {code:[{DictionaryValue}...]},
+        //  ...
+        // ]
+        //List<Map<String,List<DictionaryValue>>> cacheData = dictionaryService.findCacheData();
+
+        //也可以简化存储的数据结构
+        /*
+            {
+                code1:[{DictionaryValue}...],
+                code2:[{DictionaryValue}...],
+                ...
+            }
+         */
+        Map<String,List<DictionaryValue>> cacheData = dictionaryService.findCacheData();
+
+        //遍历集合数据,将它存入到ServletContext域对象中
+        cacheData.forEach(
+                (k,v) -> sce.getServletContext().setAttribute(k,v)
+        );
+
+        log.info("DictionaryService : {}",dictionaryService);
+        System.out.println("缓存数据加载完成...");
+    }
+}
+```
+
+* 后台代码 `service`
+```java
+@Override
+public Map<String, List<DictionaryValue>> findCacheData() {
+    //缓存数据
+    Map<String, List<DictionaryValue>> resultMap = new HashMap<>();
+
+    //方式1,普通方式获取
+    //查询出所有的字典类型编码数据,并进行遍历操作
+    dictionaryTypeDao.findAll().forEach(
+            dictionaryType -> {
+                //获取字典类型编码,根据它来查询多方的数据列表
+                String code = dictionaryType.getCode();
+
+                List<DictionaryValue> dictionaryValueList = dictionaryValueDao.findList(code);
+                System.out.println("key : "+code);
+                System.out.println("dictionaryValueList : "+dictionaryValueList);
+                if(!CollectionUtils.isEmpty(dictionaryValueList))
+                    resultMap.put(code,dictionaryValueList);
+            }
+    );
+
+    //方式2(了解),通过stream api来进行集合的分组,获取对应的数据
+    //我们可以通过查看的方式,能够知道DictionaryValue对象中就已经包含了我们的编码数据
+    //所以我们可以通过查询所有的字典值的列表数据,然后通过stream api来处理这些数据
+    //通过我们根据编码来进行分组,得到我们想要的结果
+    //Map<String, List<DictionaryValue>> resultMap = dictionaryValueDao.findAll().stream().collect(Collectors.groupingBy(DictionaryValue::getTypeCode));
+    //System.out.println(resultMap);
+
+    //封装
+    return resultMap;
+}
+```
+
+* 页面中的使用方式
+```html
+<div class="input-group-addon">线索状态</div>
+<select class="form-control">
+  <option></option>
+    <c:forEach items="${clueState}" var="cc">
+        <option value="${cc.value}">${cc.text}</option>
+    </c:forEach>
+</select>
+```

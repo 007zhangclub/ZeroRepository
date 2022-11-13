@@ -27,4 +27,6 @@ public interface ActivityService {
     boolean saveActivityRemark(ActivityRemark activityRemark);
 
     boolean updateActivityRemark(ActivityRemark activityRemark);
+
+    boolean deleteActivityRemark(String remarkId);
 }

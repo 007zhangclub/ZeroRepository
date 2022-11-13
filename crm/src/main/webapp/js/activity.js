@@ -386,7 +386,7 @@ function getActivityRemarkList() {
                             '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">'+
                             '<a onclick="openEditRemarkModal(\''+n.id+'\',\''+n.noteContent+'\')" class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
                             '&nbsp;&nbsp;&nbsp;&nbsp;'+
-                            '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
+                            '<a onclick="deleteActivityRemark(\''+n.id+'\')" class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>'+
                             '</div>'+
                             '</div>'+
                             '</div>';
@@ -523,4 +523,20 @@ function updateActivityRemark() {
             }
         )
     })
+}
+
+
+function deleteActivityRemark(remarkId) {
+    //删除是一个危险的动作,需要给出提示信息
+    if(confirm("确定要删除吗?"))
+        get(
+            "workbench/activity/remark/deleteActivityRemark.do",
+            {remarkId:remarkId},
+            data=>{
+                if(checked(data))
+                    return;
+                //删除成功后,刷新列表页面
+                getActivityRemarkList();
+            }
+        )
 }

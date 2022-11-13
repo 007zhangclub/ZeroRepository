@@ -4,6 +4,7 @@ import com.bjpowernode.crm.settings.domain.DictionaryType;
 import com.bjpowernode.crm.settings.domain.DictionaryValue;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DictionaryService {
     List<DictionaryType> findDictionaryTypeList();
@@ -19,4 +20,6 @@ public interface DictionaryService {
     List<DictionaryValue> findDictionaryValueList();
 
     boolean saveDictionaryValue(DictionaryValue dictionaryValue);
+
+    Map<String, List<DictionaryValue>> findCacheData();
 }

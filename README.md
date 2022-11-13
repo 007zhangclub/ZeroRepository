@@ -294,3 +294,180 @@ public Map<String, List<DictionaryValue>> findCacheData() {
     </c:forEach>
 </select>
 ```
+
+## 线索模块
+> 线索模块是在市场活动中结实的一些有意向的客户信息,最终通过这些客户信息促成一个线索,该线索最终我们想要将客户促成交易
+> 也就是说在举办的活动中,结实一些有意向的客户,这些就是我们的线索,后续通过沟通和联系,将这些客户促成交易
+
+## 线索模块表结构
+* tbl_clue
+  * id
+  * fullname `客户名称,也是联系人表名称`
+  * appellation `称呼`
+  * owner `外键`
+  * company `公司名称,也是客户表名称`
+  * job `只为`
+  * email `邮箱地址`
+  * phone `公司联系方式`
+  * website `网站`
+  * mphone `个人联系方式`
+  * state `线索状态`
+  * source `线索来源`
+  * createBy
+  * createTime
+  * editBy
+  * editTime
+  * description `描述信息`
+  * contactSummary `联系纪要`
+  * nextContactTime `下次联系时间`
+  * address `地址`
+  
+## 线索模块作业
+  * 线索分页查询
+  * 线索分页组件集成
+  * 线索条件过滤查询
+  * 线索修改
+  * 线索删除
+
+## 新增线索操作
+* 前端代码
+```javascript
+function saveClue() {
+    $("#saveClueBtn").click(function () {
+
+        //获取属性信息
+        let owner = $("#create-owner").val();
+        let company = $("#create-company").val();
+        let fullname = $("#create-fullname").val();
+        let appellation = $("#create-appellation").val();
+        let job = $("#create-job").val();
+        let email = $("#create-email").val();
+        let phone = $("#create-phone").val();
+        let website = $("#create-website").val();
+        let mphone = $("#create-mphone").val();
+        let state = $("#create-state").val();
+        let source = $("#create-source").val();
+        let description = $("#create-description").val();
+        let contactSummary = $("#create-contactSummary").val();
+        let nextContactTime = $("#create-nextContactTime").val();
+        let address = $("#create-address").val();
+
+        //校验必传的参数
+        if(owner == ""){
+            alert("所有者不能为空");
+            return;
+        }
+
+        if(company == ""){
+            alert("公司名称不能为空");
+            return;
+        }
+
+        if(fullname == ""){
+            alert("姓名不能为空");
+            return;
+        }
+
+        //校验通过后,发送post请求,新增线索
+        post(
+            "workbench/clue/saveClue.do",
+            {
+                owner:owner,
+                company:company,
+                fullname:fullname,
+                appellation:appellation,
+                job:job,
+                email:email,
+                phone:phone,
+                website:website,
+                mphone:mphone,
+                state:state,
+                source:source,
+                description:description,
+                contactSummary:contactSummary,
+                nextContactTime:nextContactTime,
+                address:address,
+            },data=>{
+                if(checked(data))
+                    return;
+                //关闭模态窗口,刷新列表数据(作业)
+                $("#createClueModal").modal("hide");
+            }
+        )
+    })
+}
+```
+
+* 后台代码
+```java
+@RequestMapping("/saveClue.do")
+@ResponseBody
+public R saveClue(@RequestBody Clue clue){
+    //校验必传的参数信息
+    checked(
+            clue.getOwner(),
+            clue.getFullname(),
+            clue.getCompany()
+    );
+
+    //赋值操作
+    clue.setId(IdUtils.getId())
+            .setCreateBy(getName())
+            .setCreateTime(getTime())
+            .setEditBy(getName())
+            .setEditTime(getTime());
+
+    //新增操作
+    return ok(
+            clueService.saveClue(clue),
+            State.DB_SAVE_ERROR
+    );
+}
+```
+
+* Sql
+```xml
+<insert id="insert">
+    insert into tbl_clue
+    (id,
+     fullname,
+     appellation,
+     owner,
+     company,
+     job,
+     email,
+     phone,
+     website,
+     mphone,
+     state,
+     source,
+     createBy,
+     createTime,
+     editBy,
+     editTime,
+     description,
+     contactSummary,
+     nextContactTime,
+     address)
+    values (#{id},
+            #{fullname},
+            #{appellation},
+            #{owner},
+            #{company},
+            #{job},
+            #{email},
+            #{phone},
+            #{website},
+            #{mphone},
+            #{state},
+            #{source},
+            #{createBy},
+            #{createTime},
+            #{editBy},
+            #{editTime},
+            #{description},
+            #{contactSummary},
+            #{nextContactTime},
+            #{address})
+</insert>
+```

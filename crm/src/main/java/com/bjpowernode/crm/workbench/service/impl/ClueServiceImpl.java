@@ -4,6 +4,7 @@ import com.bjpowernode.crm.workbench.dao.ClueDao;
 import com.bjpowernode.crm.workbench.dao.ClueRemarkDao;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.domain.Clue;
+import com.bjpowernode.crm.workbench.domain.ClueActivityRelation;
 import com.bjpowernode.crm.workbench.domain.ClueRemark;
 import com.bjpowernode.crm.workbench.service.ClueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,5 +58,10 @@ public class ClueServiceImpl implements ClueService {
     @Override
     public List<Activity> findClueActivityUnRelationList(String clueId, String activityName) {
         return clueDao.findClueActivityUnRelationListLike(clueId,activityName);
+    }
+
+    @Override
+    public boolean saveClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList) {
+        return clueDao.insertClueActivityRelationList(clueActivityRelationList) > 0;
     }
 }

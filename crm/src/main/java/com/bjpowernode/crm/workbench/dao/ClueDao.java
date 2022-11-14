@@ -2,6 +2,7 @@ package com.bjpowernode.crm.workbench.dao;
 
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.domain.Clue;
+import com.bjpowernode.crm.workbench.domain.ClueActivityRelation;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -35,4 +36,6 @@ public interface ClueDao {
     List<Activity> findClueActivityUnRelationList(String clueId);
 
     List<Activity> findClueActivityUnRelationListLike(@Param("clueId") String clueId, @Param("activityName") String activityName);
+
+    int insertClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList);
 }

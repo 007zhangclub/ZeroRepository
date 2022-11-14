@@ -165,4 +165,12 @@
             </foreach>
         </if>
     </select>
+    <select id="findListLike" resultType="com.bjpowernode.crm.workbench.domain.Activity">
+        select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id
+        <where> a.isDelete = '0'
+            <if test="activityName != null and activityName != ''">
+                and a.name like '%' #{activityName} '%'
+            </if>
+        </where>
+    </select>
 </mapper>

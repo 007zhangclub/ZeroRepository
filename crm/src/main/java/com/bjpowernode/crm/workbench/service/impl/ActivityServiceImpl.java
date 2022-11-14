@@ -93,4 +93,9 @@ public class ActivityServiceImpl implements ActivityService {
     public List<Activity> findAll() {
         return activityDao.findList();
     }
+
+    @Override
+    public List<Activity> findAll(String activityName) {
+        return activityDao.findListLike(activityName);
+    }
 }

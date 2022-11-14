@@ -31,4 +31,6 @@ public interface ActivityService {
     boolean deleteActivityRemark(String remarkId);
 
     List<Activity> findAll();
+
+    List<Activity> findAll(String activityName);
 }

@@ -234,32 +234,91 @@ function deleteClueActivityRelation(carId) {
 
 function openBundModal() {
     $("#openBundModalBtn").click(function () {
-        //根据线索id,查询当前线索没有关联的市场活动列表数据
-        get(
-            "workbench/clue/getClueActivityUnRelationList.do",
-            //还有模糊查询的条件
-            {
-                clueId:$("#hidden-clueId").val(),
-                activityName:$("#searchActivity").val()
-            },
+        //加载未关联的市场活动列表数据
+        clueActivityUnRelationList();
+        //打开模态窗口
+        $("#bundModal").modal("show");
+    })
+}
+
+function clueActivityUnRelationList() {
+    //根据线索id,查询当前线索没有关联的市场活动列表数据
+    get(
+        "workbench/clue/getClueActivityUnRelationList.do",
+        //还有模糊查询的条件
+        {
+            clueId:$("#hidden-clueId").val(),
+            activityName:$("#searchActivity").val()
+        },
+        data=>{
+            if(checked(data))
+                return;
+            //异步加载
+            load(
+                $("#unRelationListBody"),
+                data,
+                (i,n) => {
+                    return  '<tr>'+
+                        '<td><input type="checkbox" name="flag" value="'+n.id+'"/></td>'+
+                        '<td>'+n.name+'</td>'+
+                        '<td>'+n.startDate+'</td>'+
+                        '<td>'+n.endDate+'</td>'+
+                        '<td>'+n.username+'</td>'+
+                        '</tr>';
+                }
+            )
+
+        }
+    )
+}
+
+function searchClueActivityUnRelationList() {
+    //给模糊查询的输入框绑定键盘按下的事件
+    $("#searchActivity").keydown(event=>{
+        //按下了回车键
+        if(event.keyCode == 13){
+            //发送请求模糊查询
+            clueActivityUnRelationList();
+            //返回false,阻止页面的整体的表单提交
+            return false;
+        }
+    })
+}
+
+
+function saveClueActivityRelationList() {
+    $("#saveClueActivityRelationListBtn").click(function () {
+        //获取选中的市场活动的ids
+        let flags = $("input[name=flag]:checked");
+
+        if(flags.length == 0){
+            alert("请选择需要关联的数据");
+            return;
+        }
+
+        //获取参数ids
+        let params = [];
+
+        for(let i=0; i<flags.length; i++){
+            params.push(flags[i].value);
+        }
+
+        //获取线索id
+        let clueId = $("#hidden-clueId").val();
+
+        //发送请求
+        post(
+            "workbench/clue/saveClueActivityRelationList.do?clueId="+clueId,
+            params,
             data=>{
                 if(checked(data))
                     return;
-                //异步加载,打开模态窗口
-                load(
-                    $("#unRelationListBody"),
-                    data,
-                    (i,n) => {
-                        return  '<tr>'+
-                                '<td><input type="checkbox"/></td>'+
-                                '<td>'+n.name+'</td>'+
-                                '<td>'+n.startDate+'</td>'+
-                                '<td>'+n.endDate+'</td>'+
-                                '<td>'+n.username+'</td>'+
-                                '</tr>';
-                    }
-                )
-                $("#bundModal").modal("show");
+
+                //刷新已关联的市场活动列表数据
+                getClueActivityRelationList();
+
+                //关闭模态窗口
+                $("#bundModal").modal("hide");
             }
         )
     })

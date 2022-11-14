@@ -25,4 +25,6 @@ public interface ActivityDao {
 
     @Select("select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id where a.isDelete = '0'")
     List<Activity> findList();
+
+    List<Activity> findListLike(@Param("activityName") String activityName);
 }

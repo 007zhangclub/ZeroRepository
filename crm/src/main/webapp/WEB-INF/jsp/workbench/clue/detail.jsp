@@ -66,6 +66,12 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//4. 打开模态窗口,加载当前线索未关联的市场活动列表数据
 		openBundModal();
+
+		//5. 模糊查询,加载当前线索未关联的市场活动列表数据
+		searchClueActivityUnRelationList();
+
+		//6. 添加线索和市场活动的关联关系
+		saveClueActivityRelationList();
 	});
 	
 </script>
@@ -114,7 +120,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">关联</button>
+					<button type="button" class="btn btn-primary" id="saveClueActivityRelationListBtn">关联</button>
 				</div>
 			</div>
 		</div>

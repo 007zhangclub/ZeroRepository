@@ -2,6 +2,7 @@ package com.bjpowernode.crm.workbench.service;
 
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.domain.Clue;
+import com.bjpowernode.crm.workbench.domain.ClueActivityRelation;
 import com.bjpowernode.crm.workbench.domain.ClueRemark;
 
 import java.util.List;
@@ -22,4 +23,6 @@ public interface ClueService {
     List<Activity> findClueActivityUnRelationList(String clueId);
 
     List<Activity> findClueActivityUnRelationList(String clueId, String activityName);
+
+    boolean saveClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList);
 }

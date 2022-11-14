@@ -44,6 +44,14 @@
                 #{nextContactTime},
                 #{address})
     </insert>
+    <insert id="insertClueActivityRelationList">
+        insert into tbl_clue_activity_relation
+        (id,activityId,clueId)
+        values
+        <foreach collection="list" separator="," item="c">
+            (#{c.id},#{c.activityId},#{c.clueId})
+        </foreach>
+    </insert>
     <select id="findClueActivityUnRelationListLike" resultType="com.bjpowernode.crm.workbench.domain.Activity">
         select car.id as carId, u.name as username, a.*
         from tbl_activity a

@@ -2,6 +2,7 @@ package com.bjpowernode.crm.workbench.service.impl;
 
 import com.bjpowernode.crm.workbench.dao.ClueDao;
 import com.bjpowernode.crm.workbench.dao.ClueRemarkDao;
+import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.domain.Clue;
 import com.bjpowernode.crm.workbench.domain.ClueRemark;
 import com.bjpowernode.crm.workbench.service.ClueService;
@@ -36,5 +37,25 @@ public class ClueServiceImpl implements ClueService {
     @Override
     public boolean saveClueRemark(ClueRemark clueRemark) {
         return clueRemarkDao.insert(clueRemark) > 0;
+    }
+
+    @Override
+    public List<Activity> findClueActivityRelationList(String clueId) {
+        return clueDao.findActivityRelationList(clueId);
+    }
+
+    @Override
+    public boolean deleteClueActivityRelation(String carId) {
+        return clueDao.deleteClueActivityRelation(carId) > 0;
+    }
+
+    @Override
+    public List<Activity> findClueActivityUnRelationList(String clueId) {
+        return clueDao.findClueActivityUnRelationList(clueId);
+    }
+
+    @Override
+    public List<Activity> findClueActivityUnRelationList(String clueId, String activityName) {
+        return clueDao.findClueActivityUnRelationListLike(clueId,activityName);
     }
 }

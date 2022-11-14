@@ -2,6 +2,7 @@ package com.bjpowernode.crm.workbench.dao;
 
 import com.bjpowernode.crm.workbench.domain.Activity;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -21,4 +22,7 @@ public interface ActivityDao {
     int insertList(List<Activity> activityList);
 
     List<Activity> findAll(@Param("ids") List<String> ids);
+
+    @Select("select a.*,u.name as username from tbl_activity a left join tbl_user u on a.owner = u.id where a.isDelete = '0'")
+    List<Activity> findList();
 }

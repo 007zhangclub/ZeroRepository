@@ -28,4 +28,6 @@ public class Activity {
     private String isDelete;
     //用户名
     private String username;
+    //中间表的id
+    private String carId;
 }

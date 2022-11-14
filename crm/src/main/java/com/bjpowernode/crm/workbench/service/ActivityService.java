@@ -29,4 +29,6 @@ public interface ActivityService {
     boolean updateActivityRemark(ActivityRemark activityRemark);
 
     boolean deleteActivityRemark(String remarkId);
+
+    List<Activity> findAll();
 }

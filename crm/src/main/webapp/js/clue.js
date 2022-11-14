@@ -185,3 +185,82 @@ function saveClueRemark() {
         )
     })
 }
+
+
+function getClueActivityRelationList() {
+    get(
+        "workbench/clue/getClueActivityRelationList.do",
+        {
+            clueId:$("#hidden-clueId").val()
+        },data=>{
+            if(checked(data))
+                return;
+            //异步加载
+            load(
+                $("#relationListBody"),
+                data,
+                (i,n) => {
+                    return  '<tr>'+
+                            '<td>'+n.name+'</td>'+
+                            '<td>'+n.startDate+'</td>'+
+                            '<td>'+n.endDate+'</td>'+
+                            '<td>'+n.username+'</td>'+
+                            '<td><a onclick="deleteClueActivityRelation(\''+n.carId+'\')" href="javascript:void(0);" style="text-decoration: none;"><span class="glyphicon glyphicon-remove"></span>解除关联</a></td>'+
+                            '</tr>';
+                }
+            )
+        }
+    )
+}
+
+
+
+function deleteClueActivityRelation(carId) {
+    //删除必须提示
+    if(confirm("确定要删除吗?"))
+        get(
+            "workbench/clue/deleteClueActivityRelation.do",
+            {carId:carId},
+            data=>{
+                if(checked(data))
+                    return;
+                //删除成功,刷新列表数据
+                getClueActivityRelationList()
+            }
+        )
+}
+
+
+
+function openBundModal() {
+    $("#openBundModalBtn").click(function () {
+        //根据线索id,查询当前线索没有关联的市场活动列表数据
+        get(
+            "workbench/clue/getClueActivityUnRelationList.do",
+            //还有模糊查询的条件
+            {
+                clueId:$("#hidden-clueId").val(),
+                activityName:$("#searchActivity").val()
+            },
+            data=>{
+                if(checked(data))
+                    return;
+                //异步加载,打开模态窗口
+                load(
+                    $("#unRelationListBody"),
+                    data,
+                    (i,n) => {
+                        return  '<tr>'+
+                                '<td><input type="checkbox"/></td>'+
+                                '<td>'+n.name+'</td>'+
+                                '<td>'+n.startDate+'</td>'+
+                                '<td>'+n.endDate+'</td>'+
+                                '<td>'+n.username+'</td>'+
+                                '</tr>';
+                    }
+                )
+                $("#bundModal").modal("show");
+            }
+        )
+    })
+}

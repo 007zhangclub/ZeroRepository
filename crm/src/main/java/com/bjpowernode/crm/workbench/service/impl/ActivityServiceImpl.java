@@ -88,4 +88,9 @@ public class ActivityServiceImpl implements ActivityService {
     public boolean deleteActivityRemark(String remarkId) {
         return activityRemarkDao.delete(remarkId) > 0;
     }
+
+    @Override
+    public List<Activity> findAll() {
+        return activityDao.findList();
+    }
 }

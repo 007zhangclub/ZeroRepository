@@ -4,10 +4,12 @@ import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.utils.IdUtils;
 import com.bjpowernode.crm.workbench.base.Workbench;
+import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.domain.Clue;
 import com.bjpowernode.crm.workbench.domain.ClueRemark;
 import com.bjpowernode.crm.workbench.service.ClueService;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -103,5 +105,50 @@ public class ClueController extends Workbench {
                 clueService.saveClueRemark(clueRemark),
                 State.DB_SAVE_ERROR
         );
+    }
+
+
+    @RequestMapping("/getClueActivityRelationList.do")
+    @ResponseBody
+    public R getClueActivityRelationList(@RequestParam("clueId")String clueId){
+        //根据线索id查询当前线索已关联的市场活动列表数据
+        List<Activity> activityList = clueService.findClueActivityRelationList(clueId);
+
+        return ok(activityList);
+    }
+
+
+
+    @RequestMapping("/deleteClueActivityRelation.do")
+    @ResponseBody
+    public R deleteClueActivityRelation(@RequestParam("carId")String carId){
+        //根据carId来删除中间表的关联关系
+        boolean flag = clueService.deleteClueActivityRelation(carId);
+
+        return ok(flag,State.DB_DELETE_ERROR);
+    }
+
+
+
+    @RequestMapping("/getClueActivityUnRelationList.do")
+    @ResponseBody
+    public R getClueActivityUnRelationList(@RequestParam("clueId")String clueId,
+                                           @RequestParam(value = "activityName",required = false)String activityName){
+
+        //根据线索id查询未关联的市场活动列表数据
+        List<Activity> activityList = clueService.findClueActivityUnRelationList(clueId);
+
+        if(CollectionUtils.isEmpty(activityList)){
+            //如果查询出的结果为空,证明所有的市场活动列表数据都可以进行关联,我们返回所有的市场活动列表数据
+            activityList = activityService.findAll();
+
+        }else{
+            //如果查询出的结果不为空,并且市场活动名称不为空我们去模糊查询
+            if(StringUtils.isNotBlank(activityName))
+                //模糊查询
+                activityList = clueService.findClueActivityUnRelationList(clueId,activityName);
+        }
+
+        return ok(activityList);
     }
 }

@@ -44,4 +44,15 @@
                 #{nextContactTime},
                 #{address})
     </insert>
+    <select id="findClueActivityUnRelationListLike" resultType="com.bjpowernode.crm.workbench.domain.Activity">
+        select car.id as carId, u.name as username, a.*
+        from tbl_activity a
+        left join tbl_user u on a.owner = u.id
+        left join tbl_clue_activity_relation car on a.id != car.activityId
+        <where>a.isDelete = '0' and car.clueId = #{clueId}
+            <if test="activityName != null and activityName != ''">
+                and a.name like '%' #{activityName} '%'
+            </if>
+        </where>
+    </select>
 </mapper>

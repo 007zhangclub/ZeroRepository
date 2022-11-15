@@ -415,3 +415,16 @@ function showActivity() {
         $("#searchActivityModal").modal("hide");
     })
 }
+
+
+function clueConvert() {
+    $("#clueConvertBtn").click(function () {
+        //根据复选框的选中状态,来决定是创建交易的线索转换还是没有创建交易的线索转换操作
+        if($("#isCreateTransaction").prop("checked"))
+            //选中,创建交易的线索转换操作
+            $("#convertForm").submit();
+        else
+            //未选中,没有创建交易的线索转换操作
+            to("workbench/clue/clueConvert.do?clueId="+$("#clueId").val())
+    })
+}

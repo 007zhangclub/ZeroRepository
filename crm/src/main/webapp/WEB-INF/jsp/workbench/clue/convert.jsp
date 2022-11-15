@@ -42,6 +42,20 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//4. 回显市场活动操作
 		showActivity();
+
+		//5. 线索转换操作
+		/*
+			创建交易的线索转换
+				clueId
+				money
+				name
+				expectedDate
+				stage
+				activityId
+			没有创建交易的线索转换
+				clueId
+		 */
+		clueConvert();
 	});
 </script>
 
@@ -107,23 +121,24 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 	</div>
 	<div id="create-transaction2" style="position: relative; left: 40px; top: 20px; width: 80%; background-color: #F7F7F7; display: none;" >
 	
-		<form>
-			<input type="hidden" id="activityId">
+		<form method="post" action="workbench/clue/clueConvert.do?clueId=${clue.id}" id="convertForm">
+			<input type="hidden" name="flag" id="flag" value="a">
+			<input type="hidden" name="activityId" id="activityId">
 		  <div class="form-group" style="width: 400px; position: relative; left: 20px;">
 		    <label for="amountOfMoney">金额</label>
-		    <input type="text" class="form-control" id="money">
+		    <input type="text" class="form-control" name="money" id="money">
 		  </div>
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="tradeName">交易名称</label>
-		    <input type="text" class="form-control" id="name">
+		    <input type="text" class="form-control" name="name" id="name">
 		  </div>
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="expectedClosingDate">预计成交日期</label>
-		    <input type="text" class="form-control time1" autocomplete="off" id="expectedDate">
+		    <input type="text" class="form-control time1" autocomplete="off" name="expectedDate" id="expectedDate">
 		  </div>
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="stage">阶段</label>
-		    <select id="stage"  class="form-control">
+		    <select id="stage" name="stage" class="form-control">
 		    	<option></option>
 				<c:forEach items="${stage}" var="ss">
 					<option value="${ss.value}">${ss.text}</option>
@@ -143,7 +158,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		<b>${clue.username}</b>
 	</div>
 	<div id="operation" style="position: relative; left: 40px; height: 35px; top: 100px;">
-		<input class="btn btn-primary" type="button" value="转换">
+		<input id="clueConvertBtn" class="btn btn-primary" type="button" value="转换">
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<input class="btn btn-default" type="button" value="取消">
 	</div>

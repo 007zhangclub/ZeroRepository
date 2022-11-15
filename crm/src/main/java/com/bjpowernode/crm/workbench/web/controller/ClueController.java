@@ -4,10 +4,7 @@ import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.enums.State;
 import com.bjpowernode.crm.utils.IdUtils;
 import com.bjpowernode.crm.workbench.base.Workbench;
-import com.bjpowernode.crm.workbench.domain.Activity;
-import com.bjpowernode.crm.workbench.domain.Clue;
-import com.bjpowernode.crm.workbench.domain.ClueActivityRelation;
-import com.bjpowernode.crm.workbench.domain.ClueRemark;
+import com.bjpowernode.crm.workbench.domain.*;
 import com.bjpowernode.crm.workbench.service.ClueService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -201,5 +198,31 @@ public class ClueController extends Workbench {
             model.addAttribute("clue",clue);
 
         return "/workbench/clue/convert";
+    }
+
+
+    /*
+        线索转换操作
+            clueId
+            flag
+            Tran
+                activityId
+                name
+                money
+                stage
+                expectedDate
+            如果tran为null证明是没有创建交易的线索转换
+            或者单独传递一个标记,代表是否创建交易的线索转换操作
+     */
+    @RequestMapping("/clueConvert.do")
+    public String clueConvert(@RequestParam("clueId")String clueId,
+                              @RequestParam(value = "flag",required = false)String flag,
+                              Tran tran){
+        //线索转换操作
+        clueService.saveClueConvert(
+                clueId,flag,tran,getOwner(),getName(),getTime()
+        );
+
+        return "/workbench/clue/index";
     }
 }

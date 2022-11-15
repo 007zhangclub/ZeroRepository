@@ -25,4 +25,6 @@ public interface ClueService {
     List<Activity> findClueActivityUnRelationList(String clueId, String activityName);
 
     boolean saveClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList);
+
+    List<Activity> findClueActivityRelationList(String clueId, String activityName);
 }

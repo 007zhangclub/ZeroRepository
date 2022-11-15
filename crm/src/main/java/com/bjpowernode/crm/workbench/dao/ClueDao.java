@@ -38,4 +38,6 @@ public interface ClueDao {
     List<Activity> findClueActivityUnRelationListLike(@Param("clueId") String clueId, @Param("activityName") String activityName);
 
     int insertClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList);
+
+    List<Activity> findActivityRelationListLike(@Param("clueId") String clueId, @Param("activityName") String activityName);
 }

@@ -45,6 +45,21 @@ function initDateTimePicker() {
         //组件显示位置,左下方
         pickerPosition: "top-left"
     });
+
+    $(".time1").datetimepicker({
+        //最小的视图是月份
+        minView: "month",
+        //中文显示
+        language:  'zh-CN',
+        //提交参数的日期格式
+        format: 'yyyy-mm-dd',
+        //是否支持自动关闭
+        autoclose: true,
+        //是否支持今天按钮,点击后可以加载到今天的日期
+        todayBtn: true,
+        //组件显示位置,左下方
+        pickerPosition: "bottom-left"
+    });
 }
 
 
@@ -321,5 +336,82 @@ function saveClueActivityRelationList() {
                 $("#bundModal").modal("hide");
             }
         )
+    })
+}
+
+
+function openSearchActivityModal() {
+    $("#openSearchActivityModalBtn").click(function () {
+        getRelationList();
+        //打开模态窗口
+        $("#searchActivityModal").modal("show");
+    })
+}
+
+function getRelationList() {
+    //发送请求获取数据
+    get(
+        "workbench/clue/getClueActivityRelationList.do",
+        {
+            clueId:$("#clueId").val(),
+            activityName:$("#searchActivityInput").val()
+        },data=>{
+            if(checked(data))
+                return;
+
+            //异步加载
+            load(
+                $("#activityListBody"),
+                data,
+                (i,n)=>{
+                    return  '<tr>'+
+                        '<td><input type="radio" name="activity" value="'+n.id+'"/></td>'+
+                        '<td id="n_'+n.id+'">'+n.name+'</td>'+
+                        '<td>'+n.startDate+'</td>'+
+                        '<td>'+n.endDate+'</td>'+
+                        '<td>'+n.username+'</td>'+
+                        '</tr>';
+                }
+            )
+        }
+    )
+}
+
+
+function searchActivityList() {
+    $("#searchActivityInput").keydown(function (event) {
+        if(event.keyCode == 13){
+            getRelationList();
+
+            return false;
+        }
+    })
+}
+
+
+function showActivity() {
+    $("#addRelationBtn").click(function () {
+        //获取当前已选中的市场活动数据
+        let activities = $("input[name=activity]:checked");
+
+        if(activities.length != 1){
+            //没有选中或选中多条记录
+            alert("请选择一条需要关联的记录");
+            return;
+        }
+
+        //获取市场活动id
+        let activityId = activities[0].value;
+
+        //获取市场活动名称
+        let activityName = $("#n_"+activityId).html();
+
+        //回显数据,将id存入到隐藏域中
+        $("#activityId").val(activityId);
+
+        $("#activity").val(activityName);
+
+        //关闭模态窗口
+        $("#searchActivityModal").modal("hide");
     })
 }

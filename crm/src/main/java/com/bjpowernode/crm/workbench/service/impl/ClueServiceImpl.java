@@ -64,4 +64,9 @@ public class ClueServiceImpl implements ClueService {
     public boolean saveClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList) {
         return clueDao.insertClueActivityRelationList(clueActivityRelationList) > 0;
     }
+
+    @Override
+    public List<Activity> findClueActivityRelationList(String clueId, String activityName) {
+        return clueDao.findActivityRelationListLike(clueId,activityName);
+    }
 }

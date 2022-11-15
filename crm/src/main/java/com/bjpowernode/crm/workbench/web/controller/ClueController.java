@@ -111,9 +111,10 @@ public class ClueController extends Workbench {
 
     @RequestMapping("/getClueActivityRelationList.do")
     @ResponseBody
-    public R getClueActivityRelationList(@RequestParam("clueId") String clueId) {
+    public R getClueActivityRelationList(@RequestParam("clueId") String clueId,
+                                         @RequestParam(value = "activityName",required = false)String activityName) {
         //根据线索id查询当前线索已关联的市场活动列表数据
-        List<Activity> activityList = clueService.findClueActivityRelationList(clueId);
+        List<Activity> activityList = clueService.findClueActivityRelationList(clueId,activityName);
 
         return ok(activityList);
     }
@@ -188,5 +189,17 @@ public class ClueController extends Workbench {
                 clueService.saveClueActivityRelationList(clueActivityRelationList),
                 State.DB_SAVE_ERROR
         );
+    }
+
+
+    @RequestMapping("/toConvert.do")
+    public String toConvert(@RequestParam("clueId")String clueId,Model model){
+        //根据线索id查询线索数据
+        Clue clue = clueService.findClue(clueId);
+
+        if(ObjectUtils.isNotEmpty(clue))
+            model.addAttribute("clue",clue);
+
+        return "/workbench/clue/convert";
     }
 }

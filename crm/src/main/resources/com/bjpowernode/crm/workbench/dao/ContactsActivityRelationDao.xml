@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bjpowernode.crm.workbench.dao.ContactsActivityRelationDao">
+
+
+    <insert id="insertList">
+        insert into tbl_contacts_activity_relation
+        (id,activityId,clueId) values
+        <foreach collection="list" item="c" separator=",">
+            (#{c.id},#{c.activityId},#{c.clueId})
+        </foreach>
+    </insert>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

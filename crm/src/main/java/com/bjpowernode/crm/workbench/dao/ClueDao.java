@@ -40,4 +40,7 @@ public interface ClueDao {
     int insertClueActivityRelationList(List<ClueActivityRelation> clueActivityRelationList);
 
     List<Activity> findActivityRelationListLike(@Param("clueId") String clueId, @Param("activityName") String activityName);
+
+    @Delete("delete from tbl_clue where id = #{clueId}")
+    int delete(String clueId);
 }

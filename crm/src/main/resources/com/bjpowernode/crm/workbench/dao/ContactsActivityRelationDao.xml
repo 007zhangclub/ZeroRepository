@@ -8,9 +8,9 @@
 
     <insert id="insertList">
         insert into tbl_contacts_activity_relation
-        (id,activityId,clueId) values
+        (id,activityId,contactsId) values
         <foreach collection="list" item="c" separator=",">
-            (#{c.id},#{c.activityId},#{c.clueId})
+            (#{c.id},#{c.activityId},#{c.contactsId})
         </foreach>
     </insert>
 </mapper>

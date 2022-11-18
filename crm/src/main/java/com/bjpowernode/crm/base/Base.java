@@ -92,7 +92,7 @@ public class Base {
                 .build();
     }
 
-    public <T> R<?> ok(T data){
+    public <T> R ok(T data){
         return R.builder()
                 .code(State.SUCCESS.getCode())
                 .msg(State.SUCCESS.getMsg())

@@ -433,4 +433,13 @@ public class ActivityController extends Workbench {
                 State.DB_DELETE_ERROR
         );
     }
+
+
+    @RequestMapping("/getActivityList.do")
+    @ResponseBody
+    public R<List<Activity>> getActivityList(@RequestParam(value = "activityName",required = false)String activityName){
+        return ok(
+                activityService.findAll(activityName)
+        );
+    }
 }

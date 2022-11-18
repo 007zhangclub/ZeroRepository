@@ -53,3 +53,56 @@ function autoLoadCustomerName() {
         delay:500
     })
 }
+
+
+
+function loadPossibilityByStage(json) {
+    //给下拉框绑定事件,当选中了其他的选项时,根据当前的选项的名称,加载对应的可能性数据到只读的输入框中
+    $("#create-stage").change(function () {
+        //获取当前选中的选项数据(阶段名称)
+        let stage = $(this).val();
+
+        //根据阶段名称加载可能性数据
+        let possibility = json[stage];
+
+        $("#create-possibility").val(possibility);
+    })
+}
+
+
+function openFindMarketActivity() {
+    $("#openFindMarketActivityBtn").click(function () {
+        //获取数据,异步加载
+        get(
+            "workbench/activity/getActivityList.do",
+            {
+                activityName:$("#activityName").val()
+            },data=>{
+                if(checked(data))
+                    return;
+                //异步加载
+                getActivityList(data);
+
+                //打开模态窗口
+                $("#findMarketActivity").modal("show");
+            }
+        )
+    })
+}
+
+
+function getActivityList(data) {
+    load(
+        $("#activityListBody"),
+        data,
+        (i,n)=>{
+            return  '<tr>'+
+                    '<td><input type="radio" name="activity" value="'+n.id+'"/></td>'+
+                    '<td>'+n.name+'</td>'+
+                    '<td>'+n.startDate+'</td>'+
+                    '<td>'+n.endDate+'</td>'+
+                    '<td>'+n.username+'</td>'+
+                    '</tr>';
+        }
+    )
+}

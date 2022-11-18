@@ -6,11 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /*
     让当前的类实现ServletContextListener接口
@@ -57,14 +60,29 @@ public class LoadCacheDataListener implements ServletContextListener {
                 ...
             }
          */
-        Map<String,List<DictionaryValue>> cacheData = dictionaryService.findCacheData();
+        Map<String, List<DictionaryValue>> cacheData = dictionaryService.findCacheData();
 
         //遍历集合数据,将它存入到ServletContext域对象中
         cacheData.forEach(
-                (k,v) -> sce.getServletContext().setAttribute(k,v)
+                (k, v) -> sce.getServletContext().setAttribute(k, v)
         );
 
         //log.info("DictionaryService : {}",dictionaryService);
+
+        //加载阶段和可能性的数据到服务器缓存中
+        //指定的属性名称,不要携带后缀名
+        ResourceBundle bundle = ResourceBundle.getBundle("properties/Stage2Possibility");
+
+        //创建一个Map集合,用于封装阶段和可能性对应的数据
+        Map<String, String> sapMap = new HashMap<>();
+
+        bundle.keySet().forEach(key -> sapMap.put(key, bundle.getString(key)));
+
+        //存入到缓存中
+        //if(!CollectionUtils.isEmpty(sapMap))
+        sce.getServletContext().setAttribute("sapMap", sapMap);
+
+        System.out.println("sapMap : "+sapMap);
         System.out.println("缓存数据加载完成...");
     }
 }

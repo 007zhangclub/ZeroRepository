@@ -114,4 +114,21 @@ public class TransactionController extends Workbench {
 
         return ok(tranHistoryList);
     }
+
+
+    @RequestMapping("/updateStage.do")
+    @ResponseBody
+    public R updateStage(@RequestParam("tranId")String tranId,
+                              @RequestParam("stage")String stage,
+                              @RequestParam("money")String money,
+                              @RequestParam("expectedDate")String expectedDate){
+        checked(
+                tranId,stage,money,expectedDate
+        );
+
+        //更新和新增操作
+        transactionService.updateStage(tranId,money,expectedDate,getName(),getTime(),stage);
+
+        return ok();
+    }
 }

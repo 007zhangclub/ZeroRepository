@@ -93,4 +93,31 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TranHistory> findTransactionHistoryList(String tranId) {
         return tranHistoryDao.findList(tranId);
     }
+
+    @Override
+    public void updateStage(String tranId, String money, String expectedDate, String name, String time, String stage) {
+        //更新交易阶段
+        int a = tranDao.updateStage(
+                tranId,
+                stage,
+                name,
+                time
+        );
+
+        if (a <= 0)
+            throw new RuntimeException(State.DB_UPDATE_ERROR.getMsg());
+
+        //新增交易历史记录
+        tranHistoryDao.insert(
+                TranHistory.builder()
+                        .id(IdUtils.getId())
+                        .stage(stage)
+                        .money(money)
+                        .expectedDate(expectedDate)
+                        .createTime(time)
+                        .createBy(name)
+                        .tranId(tranId)
+                        .build()
+        );
+    }
 }

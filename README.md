@@ -340,3 +340,349 @@ public R<List<TranHistory>> getTranHistoryList(@RequestParam("tranId")String tra
     select * from tbl_tran_history where tranId = #{tranId}
 </select>
 ```
+
+## 加载阶段图标
+```html
+<!-- 阶段状态 -->
+<div style="position: relative; left: 40px; top: -50px;">
+    阶段&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="资质审查" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="需求分析" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="价值建议" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="确定决策者" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-map-marker mystage" data-toggle="popover" data-placement="bottom" data-content="提案/报价" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="谈判/复审"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="成交"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="丢失的线索"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="因竞争丢失关闭"></span>--%>
+<%--		-------------%>
+    <%
+        /*
+            图标状态分类:
+                1. 交易中的状态
+                    最后两个图标是黑叉,前七个不固定,已完成图标,当前所处阶段图标,未完成阶段图标
+                2. 丢失后的状态
+                    前七个图标是黑圈,后两个是红叉和黑叉
+         */
+        //准备加载图标所需的数据
+        //阶段和可能性对应的map集合
+        Map<String,String> sapMap = (Map<String, String>) application.getAttribute("sapMap");
+        //排好序的字典值列表数据,从阶段1到阶段9
+        List<DictionaryValue> dictionaryValueList = (List<DictionaryValue>) application.getAttribute("stage");
+        //当前阶段和可能性
+        String curStage = ((Tran) request.getAttribute("tran")).getStage();
+        String curPossibility = (String) request.getAttribute("possibility");
+
+        //如何判断加载的图标是那种状态呢?
+        //根据可能性进行判断,如果可能性为0%,代表是丢失后的交易状态,否则是交易中的状态
+        if(StringUtils.equals("0%",curPossibility)){
+            //丢失后状态
+            //遍历集合,生成9个图标
+            for(int i=0; i<dictionaryValueList.size(); i++){
+                //获取当前遍历的阶段和对应可能性,用于判断的
+                String stage = dictionaryValueList.get(i).getValue();
+                String possibility = sapMap.get(stage);
+
+                //判断生成的图标
+                if(StringUtils.equals("0%",possibility)){
+                    //生成的是最后两个图标
+                    if(StringUtils.equals(curStage,stage)){
+                        //红叉
+    %>
+    <span data-content="<%=stage%>" style="color: #FF0000;" class="glyphicon glyphicon-remove mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }else{
+                        //黑叉
+    %>
+    <span data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-remove mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }
+                }else{
+                    //生成的是前七个图标
+                    //黑圈
+    %>
+    <span data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                }
+            }
+        }else{
+            //交易中状态
+            //先获取到当前所处阶段的索引值
+            int index = 0;
+            //如果遍历的索引值比当前索引值小,证明是已完成的阶段
+            //如果遍历的索引值和它相等,证明是当前所处的阶段
+            //如果遍历的索引值比当前索引值大,证明是未完成的阶段
+            for(int i=0; i<dictionaryValueList.size(); i++) {
+                String stage = dictionaryValueList.get(i).getValue();
+                if(StringUtils.equals(stage,curStage)){
+                    //跳出当前遍历
+                    index = i;
+                    break;
+                }
+            }
+
+            //遍历生成9个图标
+            for(int i=0; i<dictionaryValueList.size(); i++) {
+                //获取当前遍历的阶段和对应可能性,用于判断的
+                String stage = dictionaryValueList.get(i).getValue();
+                String possibility = sapMap.get(stage);
+
+                if(StringUtils.equals("0%",possibility)){
+                    //黑叉
+    %>
+    <span data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-remove mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                }else{
+                    //交易中的前七个图标
+                    if(i < index){
+                        //已完成图标
+    %>
+    <span data-content="<%=stage%>" style="color: #90F790;" class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }else if(i == index){
+                        //当前所处阶段图标
+    %>
+    <span data-content="<%=stage%>" style="color: #90F790;" class="glyphicon glyphicon-map-marker mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }else{
+                        //未完成图标
+    %>
+    <span data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }
+                }
+            }
+        }
+    %>
+    <span class="closingDate">${tran.expectedDate}</span>
+</div>
+```
+
+## 更新阶段及图标
+* 页面
+```html
+<!-- 阶段状态 -->
+<div style="position: relative; left: 40px; top: -50px;">
+    阶段&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="资质审查" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="需求分析" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="价值建议" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom" data-content="确定决策者" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-map-marker mystage" data-toggle="popover" data-placement="bottom" data-content="提案/报价" style="color: #90F790;"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="谈判/复审"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="成交"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="丢失的线索"></span>--%>
+<%--		-------------%>
+<%--		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="因竞争丢失关闭"></span>--%>
+<%--		-------------%>
+    <%
+        /*
+            图标状态分类:
+                1. 交易中的状态
+                    最后两个图标是黑叉,前七个不固定,已完成图标,当前所处阶段图标,未完成阶段图标
+                2. 丢失后的状态
+                    前七个图标是黑圈,后两个是红叉和黑叉
+         */
+        //准备加载图标所需的数据
+        //阶段和可能性对应的map集合
+        Map<String,String> sapMap = (Map<String, String>) application.getAttribute("sapMap");
+        //排好序的字典值列表数据,从阶段1到阶段9
+        List<DictionaryValue> dictionaryValueList = (List<DictionaryValue>) application.getAttribute("stage");
+        //当前阶段和可能性
+        String curStage = ((Tran) request.getAttribute("tran")).getStage();
+        String money = ((Tran) request.getAttribute("tran")).getMoney();
+        String expectedDate = ((Tran) request.getAttribute("tran")).getExpectedDate();
+        String curPossibility = (String) request.getAttribute("possibility");
+
+        //如何判断加载的图标是那种状态呢?
+        //根据可能性进行判断,如果可能性为0%,代表是丢失后的交易状态,否则是交易中的状态
+        if(StringUtils.equals("0%",curPossibility)){
+            //丢失后状态
+            //遍历集合,生成9个图标
+            for(int i=0; i<dictionaryValueList.size(); i++){
+                //获取当前遍历的阶段和对应可能性,用于判断的
+                String stage = dictionaryValueList.get(i).getValue();
+                String possibility = sapMap.get(stage);
+
+                //判断生成的图标
+                if(StringUtils.equals("0%",possibility)){
+                    //生成的是最后两个图标
+                    if(StringUtils.equals(curStage,stage)){
+                        //红叉
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #FF0000;" class="glyphicon glyphicon-remove mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }else{
+                        //黑叉
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-remove mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }
+                }else{
+                    //生成的是前七个图标
+                    //黑圈
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                }
+            }
+        }else{
+            //交易中状态
+            //先获取到当前所处阶段的索引值
+            int index = 0;
+            //如果遍历的索引值比当前索引值小,证明是已完成的阶段
+            //如果遍历的索引值和它相等,证明是当前所处的阶段
+            //如果遍历的索引值比当前索引值大,证明是未完成的阶段
+            for(int i=0; i<dictionaryValueList.size(); i++) {
+                String stage = dictionaryValueList.get(i).getValue();
+                if(StringUtils.equals(stage,curStage)){
+                    //跳出当前遍历
+                    index = i;
+                    break;
+                }
+            }
+
+            //遍历生成9个图标
+            for(int i=0; i<dictionaryValueList.size(); i++) {
+                //获取当前遍历的阶段和对应可能性,用于判断的
+                String stage = dictionaryValueList.get(i).getValue();
+                String possibility = sapMap.get(stage);
+
+                if(StringUtils.equals("0%",possibility)){
+                    //黑叉
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-remove mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                }else{
+                    //交易中的前七个图标
+                    if(i < index){
+                        //已完成图标
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #90F790;" class="glyphicon glyphicon-ok-circle mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }else if(i == index){
+                        //当前所处阶段图标
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #90F790;" class="glyphicon glyphicon-map-marker mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }else{
+                        //未完成图标
+    %>
+    <span onclick="updateStage('<%=stage%>','<%=money%>','<%=expectedDate%>')" data-content="<%=stage%>" style="color: #000000;" class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom"></span>
+    -----------
+    <%
+                    }
+                }
+            }
+        }
+    %>
+    <span class="closingDate">${tran.expectedDate}</span>
+</div>
+```
+
+* 前端代码
+```javascript
+function updateStage(stage, money,expectedDate) {
+    //alert(stage + " "+ money + " "+expectedDate)
+    let tranId = $("#tranId").val();
+
+    //根据交易id,更新交易的阶段及新增交易历史记录
+    //更新成功后,刷新当前页面
+    get(
+        "workbench/transaction/updateStage.do",
+        {
+            stage:stage,
+            money:money,
+            expectedDate:expectedDate,
+            tranId:tranId,
+        },data=>{
+            if (checked(data)) return;
+
+            to("workbench/transaction/toDetail.do?id="+tranId);
+        }
+    )
+}
+```
+
+* 后台代码 `controller`
+```java
+@RequestMapping("/updateStage.do")
+@ResponseBody
+public R updateStage(@RequestParam("tranId")String tranId,
+                          @RequestParam("stage")String stage,
+                          @RequestParam("money")String money,
+                          @RequestParam("expectedDate")String expectedDate){
+    checked(
+            tranId,stage,money,expectedDate
+    );
+
+    //更新和新增操作
+    transactionService.updateStage(tranId,money,expectedDate,getName(),getTime(),stage);
+
+    return ok();
+}
+```
+
+* 后台代码 `service`
+```java
+@Override
+public void updateStage(String tranId, String money, String expectedDate, String name, String time, String stage) {
+    //更新交易阶段
+    int a = tranDao.updateStage(
+            tranId,
+            stage,
+            name,
+            time
+    );
+
+    if (a <= 0)
+        throw new RuntimeException(State.DB_UPDATE_ERROR.getMsg());
+
+    //新增交易历史记录
+    tranHistoryDao.insert(
+            TranHistory.builder()
+                    .id(IdUtils.getId())
+                    .stage(stage)
+                    .money(money)
+                    .expectedDate(expectedDate)
+                    .createTime(time)
+                    .createBy(name)
+                    .tranId(tranId)
+                    .build()
+    );
+}
+```
+
+* Sql
+```java
+@Update("update tbl_tran set stage=#{stage},editBy=#{name},editTime=#{time} where id = #{tranId}")
+int updateStage(@Param("tranId") String tranId, @Param("stage") String stage, @Param("name") String name, @Param("time") String time);
+```

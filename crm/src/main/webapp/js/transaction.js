@@ -235,3 +235,25 @@ function getTranHistoryList() {
         }
     )
 }
+
+
+function updateStage(stage, money,expectedDate) {
+    //alert(stage + " "+ money + " "+expectedDate)
+    let tranId = $("#tranId").val();
+
+    //根据交易id,更新交易的阶段及新增交易历史记录
+    //更新成功后,刷新当前页面
+    get(
+        "workbench/transaction/updateStage.do",
+        {
+            stage:stage,
+            money:money,
+            expectedDate:expectedDate,
+            tranId:tranId,
+        },data=>{
+            if (checked(data)) return;
+
+            to("workbench/transaction/toDetail.do?id="+tranId);
+        }
+    )
+}

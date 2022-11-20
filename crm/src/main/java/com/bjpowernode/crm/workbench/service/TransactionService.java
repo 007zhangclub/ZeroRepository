@@ -11,4 +11,6 @@ public interface TransactionService {
     Tran findTransaction(String id);
 
     List<TranHistory> findTransactionHistoryList(String tranId);
+
+    void updateStage(String tranId, String money, String expectedDate, String name, String time, String stage);
 }

@@ -3,9 +3,11 @@ package com.bjpowernode.crm.workbench.web.controller;
 import com.bjpowernode.crm.entity.R;
 import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.workbench.base.Workbench;
+import com.bjpowernode.crm.workbench.domain.Tran;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -44,5 +46,25 @@ public class TransactionController extends Workbench {
         List<String> customerNameList = customerService.findCustomerNameList(customerName);
 
         return ok(customerNameList);
+    }
+
+
+    @RequestMapping("/saveTransaction.do")
+    @ResponseBody
+    public R<Boolean> saveTransaction(@RequestBody Tran tran,
+                                      @RequestParam(value = "customerName")String customerName){
+        //校验
+        checked(
+                tran.getOwner(),
+                tran.getStage(),
+                tran.getName(),
+                tran.getExpectedDate(),
+                customerName
+        );
+
+        //新增交易操作
+        boolean flag = transactionService.saveTransaction(tran,customerName,getName(),getTime());
+
+        return ok(flag);
     }
 }

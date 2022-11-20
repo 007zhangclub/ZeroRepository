@@ -38,6 +38,12 @@
 
             //4. 加载所有未删除的市场活动列表数据,并模糊查询
             openFindMarketActivity();
+
+            //5. 回显市场活动数据
+            addActivity();
+
+            //6. 新增交易操作
+            saveTransaction();
         })
 
         //这个转换的方式由于用到了java+js的方式,所以不能够放在js文件中执行
@@ -64,6 +70,9 @@
 
 </head>
 <body>
+
+    <input type="hidden" id="create-activityId">
+    <input type="hidden" id="create-contactsId" value="fd2d6dc8c8074b47968d2ee3769b652b">
 
 <!-- 查找市场活动 -->
 <div class="modal fade" id="findMarketActivity" role="dialog">
@@ -164,7 +173,7 @@
 <div style="position:  relative; left: 30px;">
     <h3>创建交易</h3>
     <div style="position: relative; top: -40px; left: 70%;">
-        <button type="button" class="btn btn-primary">保存</button>
+        <button id="saveTransactionBtn" type="button" class="btn btn-primary">保存</button>
         <button type="button" class="btn btn-default">取消</button>
     </div>
     <hr style="position: relative; top: -40px;">

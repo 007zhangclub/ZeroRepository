@@ -26,6 +26,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
 
+	<script type="text/javascript" src="js/ajax.js"></script>
+	<script type="text/javascript" src="js/transaction.js"></script>
+
 <script type="text/javascript">
 
 	//默认情况下取消和保存按钮是隐藏的
@@ -87,6 +90,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
                         }
                     }, 100);
                 });
+
+		//1. 加载交易历史列表数据
+		getTranHistoryList();
 	});
 	
 	
@@ -95,6 +101,8 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 </head>
 <body>
+
+	<input type="hidden" id="tranId" value="${tran.id}">
 	
 	<!-- 返回按钮 -->
 	<div style="position: relative; top: 35px; left: 10px;">
@@ -104,7 +112,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 	<!-- 大标题 -->
 	<div style="position: relative; left: 40px; top: -30px;">
 		<div class="page-header">
-			<h3>动力节点-交易01 <small>￥5,000</small></h3>
+			<h3>${tran.customerName}-${tran.name} <small>￥${tran.money}</small></h3>
 		</div>
 		
 	</div>
@@ -134,71 +142,71 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		-----------
 		<span class="glyphicon glyphicon-record mystage" data-toggle="popover" data-placement="bottom" data-content="因竞争丢失关闭"></span>
 		-----------
-		<span class="closingDate">2010-10-10</span>
+		<span class="closingDate">${tran.expectedDate}</span>
 	</div>
 	
 	<!-- 详细信息 -->
 	<div style="position: relative; top: 0px;">
 		<div style="position: relative; left: 40px; height: 30px;">
 			<div style="width: 300px; color: gray;">所有者</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>zhangsan</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${tran.username}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">金额</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>5,000</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${tran.money}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 10px;">
 			<div style="width: 300px; color: gray;">名称</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>动力节点-交易01</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${tran.customerName}-${tran.name}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">预计成交日期</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>2017-02-07</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${tran.expectedDate}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 20px;">
 			<div style="width: 300px; color: gray;">客户名称</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>动力节点</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${tran.customerName}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">阶段</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>谈判/复审</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${tran.stage}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 30px;">
 			<div style="width: 300px; color: gray;">类型</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>新业务</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${tran.type}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">可能性</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>90</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${possibility}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 40px;">
 			<div style="width: 300px; color: gray;">来源</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>广告</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${tran.source}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">市场活动源</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>发传单</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${tran.activityName}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 50px;">
 			<div style="width: 300px; color: gray;">联系人名称</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>李四</b></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${tran.contactsName}</b></div>
 			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 60px;">
 			<div style="width: 300px; color: gray;">创建者</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>zhangsan&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">2017-01-18 10:10:10</small></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${tran.createBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${tran.createTime}</small></div>
 			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 70px;">
 			<div style="width: 300px; color: gray;">修改者</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>zhangsan&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">2017-01-19 10:10:10</small></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${tran.editBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${tran.editTime}</small></div>
 			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 80px;">
 			<div style="width: 300px; color: gray;">描述</div>
 			<div style="width: 630px;position: relative; left: 200px; top: -20px;">
 				<b>
-					这是一条线索的描述信息 （线索转换之后会将线索的描述转换到交易的描述中）
+					${tran.description}
 				</b>
 			</div>
 			<div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>
@@ -207,14 +215,14 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<div style="width: 300px; color: gray;">联系纪要</div>
 			<div style="width: 630px;position: relative; left: 200px; top: -20px;">
 				<b>
-					&nbsp;
+					${tran.contactSummary}&nbsp;
 				</b>
 			</div>
 			<div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 100px;">
 			<div style="width: 300px; color: gray;">下次联系时间</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>&nbsp;</b></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${tran.nextContactTime}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 	</div>
@@ -282,31 +290,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 							<td>创建人</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr>
-							<td>资质审查</td>
-							<td>5,000</td>
-							<td>10</td>
-							<td>2017-02-07</td>
-							<td>2016-10-10 10:10:10</td>
-							<td>zhangsan</td>
-						</tr>
-						<tr>
-							<td>需求分析</td>
-							<td>5,000</td>
-							<td>20</td>
-							<td>2017-02-07</td>
-							<td>2016-10-20 10:10:10</td>
-							<td>zhangsan</td>
-						</tr>
-						<tr>
-							<td>谈判/复审</td>
-							<td>5,000</td>
-							<td>90</td>
-							<td>2017-02-07</td>
-							<td>2017-02-09 10:10:10</td>
-							<td>zhangsan</td>
-						</tr>
+					<tbody id="tranHistoryListBody">
 					</tbody>
 				</table>
 			</div>

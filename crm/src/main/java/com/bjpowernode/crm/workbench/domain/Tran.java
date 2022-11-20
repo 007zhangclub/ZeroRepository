@@ -32,4 +32,9 @@ public class Tran {
     private String description;
     private String contactSummary;
     private String nextContactTime;
+
+    private String username;
+    private String customerName;
+    private String contactsName;
+    private String activityName;
 }

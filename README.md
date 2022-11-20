@@ -238,3 +238,105 @@ public boolean saveTransaction(Tran tran, String customerName, String name, Stri
     return a > 0;
 }
 ```
+
+## 加载交易详情页面基本信息
+* 后台代码
+```java
+@RequestMapping("/toDetail.do")
+public String toDetail(@RequestParam("id") String id, Model model, HttpServletRequest request){
+    //根据交易id查询交易数据
+    Tran tran = transactionService.findTransaction(id);
+
+    if(ObjectUtils.isNotEmpty(tran)){
+
+        model.addAttribute("tran",tran);
+
+        //加载可能性数据
+        //根据request对象获取服务器缓存数据
+        Map<String,String> sapMap = (Map<String, String>) request.getServletContext().getAttribute("sapMap");
+
+        String stage = tran.getStage();
+
+        if(StringUtils.isNotBlank(stage))
+            model.addAttribute("possibility",sapMap.get(stage));
+    }
+
+    return "/workbench/transaction/detail";
+}
+```
+
+* Sql
+```xml
+<select id="findById" resultType="com.bjpowernode.crm.workbench.domain.Tran">
+    select
+        t.*,a.name as activityName,u.name as username,co.fullname as contactsName,cu.name as customerName
+    from tbl_tran t
+        left join tbl_activity a on t.activityId = a.id
+        left join tbl_user u on t.owner = u.id
+        left join tbl_contacts co on t.contactsId = co.id
+        left join tbl_customer cu on t.customerId = cu.id
+    where t.id = #{id}
+</select>
+```
+
+
+## 加载交易历史记录
+* 前端代码
+```javascript
+function getTranHistoryList() {
+    //发送get方式请求,根据交易id,查询历史列表数据
+    get(
+        "workbench/transaction/getTranHistoryList.do",
+        {
+            tranId:$("#tranId").val()
+        },data=>{
+            if(checked(data))
+                return;
+
+            //异步加载
+            load(
+                $("#tranHistoryListBody"),
+                data,
+                (i,n)=>{
+                    return  '<tr>'+
+                            '<td>'+n.stage+'</td>'+
+                            '<td>'+n.money+'</td>'+
+                            '<td>'+n.possibility+'</td>'+
+                            '<td>'+n.expectedDate+'</td>'+
+                            '<td>'+n.createTime+'</td>'+
+                            '<td>'+n.createBy+'</td>'+
+                            '</tr>';
+                }
+            )
+        }
+    )
+}
+```
+
+* 后台代码
+```java
+@RequestMapping("/getTranHistoryList.do")
+@ResponseBody
+public R<List<TranHistory>> getTranHistoryList(@RequestParam("tranId")String tranId,HttpServletRequest request){
+
+    //获取阶段和可能性的map集合
+    Map<String,String> sapMap = (Map<String, String>) request.getServletContext().getAttribute("sapMap");
+
+    //查询交易历史记录
+    List<TranHistory> tranHistoryList = transactionService.findTransactionHistoryList(tranId);
+
+    if(!CollectionUtils.isEmpty(tranHistoryList)){
+        //处理可能性数据
+        tranHistoryList.forEach(history -> history.setPossibility(sapMap.get(history.getStage())));
+    }
+
+    return ok(tranHistoryList);
+}
+```
+
+* Sql
+```xml
+<select id="findList" resultType="com.bjpowernode.crm.workbench.domain.TranHistory">
+    select * from tbl_tran_history where tranId = #{tranId}
+</select>
+```

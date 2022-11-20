@@ -205,3 +205,33 @@ function saveTransaction() {
         )
     })
 }
+
+
+function getTranHistoryList() {
+    //发送get方式请求,根据交易id,查询历史列表数据
+    get(
+        "workbench/transaction/getTranHistoryList.do",
+        {
+            tranId:$("#tranId").val()
+        },data=>{
+            if(checked(data))
+                return;
+
+            //异步加载
+            load(
+                $("#tranHistoryListBody"),
+                data,
+                (i,n)=>{
+                    return  '<tr>'+
+                            '<td>'+n.stage+'</td>'+
+                            '<td>'+n.money+'</td>'+
+                            '<td>'+n.possibility+'</td>'+
+                            '<td>'+n.expectedDate+'</td>'+
+                            '<td>'+n.createTime+'</td>'+
+                            '<td>'+n.createBy+'</td>'+
+                            '</tr>';
+                }
+            )
+        }
+    )
+}

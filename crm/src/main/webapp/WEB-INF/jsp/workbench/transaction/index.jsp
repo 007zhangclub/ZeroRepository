@@ -157,7 +157,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					<tbody>
 						<tr>
 							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">动力节点-交易01</a></td>
+							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='workbench/transaction/toDetail.do?id=72ea11516bcb4d8dad89f8013a6e8bb4';">动力节点-交易01</a></td>
 							<td>动力节点</td>
 							<td>谈判/复审</td>
 							<td>新业务</td>
@@ -167,7 +167,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 						</tr>
                         <tr class="active">
                             <td><input type="checkbox" /></td>
-                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">动力节点-交易01</a></td>
+                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='workbench/transaction/toDetail.do?id=72ea11516bcb4d8dad89f8013a6e8bb4';">动力节点-交易01</a></td>
                             <td>动力节点</td>
                             <td>谈判/复审</td>
                             <td>新业务</td>

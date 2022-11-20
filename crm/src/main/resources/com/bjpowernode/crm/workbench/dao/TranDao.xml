@@ -45,6 +45,16 @@
                 #{contactSummary},
                 #{nextContactTime})
     </insert>
+    <select id="findById" resultType="com.bjpowernode.crm.workbench.domain.Tran">
+        select
+               t.*,a.name as activityName,u.name as username,co.fullname as contactsName,cu.name as customerName
+        from tbl_tran t
+        left join tbl_activity a on t.activityId = a.id
+        left join tbl_user u on t.owner = u.id
+        left join tbl_contacts co on t.contactsId = co.id
+        left join tbl_customer cu on t.customerId = cu.id
+        where t.id = #{id}
+    </select>
 </mapper>
 
 

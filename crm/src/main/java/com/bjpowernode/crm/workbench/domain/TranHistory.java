@@ -23,4 +23,6 @@ public class TranHistory {
 	private String createBy;
 	private String tranId;
 
+	private String possibility;
+
 }

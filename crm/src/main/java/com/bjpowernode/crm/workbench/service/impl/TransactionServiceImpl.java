@@ -13,6 +13,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
@@ -80,5 +82,15 @@ public class TransactionServiceImpl implements TransactionService {
         tranHistoryDao.insert(history);
 
         return a > 0;
+    }
+
+    @Override
+    public Tran findTransaction(String id) {
+        return tranDao.findById(id);
+    }
+
+    @Override
+    public List<TranHistory> findTransactionHistoryList(String tranId) {
+        return tranHistoryDao.findList(tranId);
     }
 }

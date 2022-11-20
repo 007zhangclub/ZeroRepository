@@ -5,4 +5,6 @@ import com.bjpowernode.crm.workbench.domain.Tran;
 public interface TranDao {
 
     int insert(Tran tran);
+
+    Tran findById(String id);
 }
